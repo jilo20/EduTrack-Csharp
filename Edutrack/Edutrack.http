@@ -1,0 +1,6 @@
+@Edutrack_HostAddress = http://localhost:5025
+
+GET {{Edutrack_HostAddress}}/api/registeredid/2
+Accept: application/json
+
+###

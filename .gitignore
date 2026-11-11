@@ -1,0 +1,46 @@
+
+# ==========================================
+# React / Vite / Material UI
+# ==========================================
+
+# Build output
+dist/
+build/
+coverage/
+
+# Vite cache
+.vite/
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vs/
+
+# Local environment variables
+.env.*
+!.env.example
+!.env.sample
+
+# ==========================================
+# ASP.NET Core
+# ==========================================
+
+# Local application settings
+appsettings.Local.json
+appsettings.*.local.json
+
+# User secrets and certificates
+secrets.json
+*.p12
+*.pem
+*.key
+
+# ==========================================
+# Temporary files
+# ==========================================
+
+.cache/
+tmp/
+temp/
