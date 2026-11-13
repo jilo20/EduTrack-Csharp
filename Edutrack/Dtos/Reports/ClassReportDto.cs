@@ -8,5 +8,23 @@
 // NAMESPACE:   Edutrack.Dtos   (not Edutrack.Dtos.Reports, even though the file is in a subfolder)
 // Put validation ([Required], [StringLength], [Range]) on INPUT DTOs only.
 //
-// STATUS:  EMPTY - not started. Delete this line when you begin.
 // ============================================================================
+
+namespace Edutrack.Dtos
+{
+    public record ClassReportDto(
+        int ClassId,
+        string ClassName,
+        string SectionCode,
+        string Status,
+        int PassingGrade,
+        int TotalStudents,
+        double? ClassAverage,
+        double? ClassAverageEquiv,
+        double? AttendanceRate,
+        int PassingCount,
+        List<ClassReportStudentDto> Students
+    );
+
+    public record ClassReportStudentDto(int Id, string Name, string Email, double? Grade, double? EquivalentGrade, double? AttendanceRate);
+}

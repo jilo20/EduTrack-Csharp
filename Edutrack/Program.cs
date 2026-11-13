@@ -16,6 +16,9 @@ builder.AddEduTrackDb();
 
 // 4.1 / 4.5: JWT login. The frontend sends "Authorization: Bearer <token>" with every request.
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<AuditLogService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<GradeService>();
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

@@ -8,5 +8,28 @@
 // NAMESPACE:   Edutrack.Dtos   (not Edutrack.Dtos.Reports, even though the file is in a subfolder)
 // Put validation ([Required], [StringLength], [Range]) on INPUT DTOs only.
 //
-// STATUS:  EMPTY - not started. Delete this line when you begin.
 // ============================================================================
+
+namespace Edutrack.Dtos
+{
+    public record StudentReportDto(
+        StudentRefDto Student,
+        int ClassId,
+        string ClassName,
+        double? Grade,
+        double? EquivalentGrade,
+        string? Description,
+        List<StudentScoreDto> Scores,
+        List<CategoryResultDto> Categories,
+        AttendanceSummaryDto Attendance
+    );
+
+    public record StudentRefDto(int Id, string Name);
+
+    // Status is GRADED or PENDING (no score yet). Pending scores are not counted in the grade.
+    public record StudentScoreDto(int AssessmentId, string Assessment, string Type, double? Score, int PerfectScore, string Status);
+
+    public record CategoryResultDto(string Type, double? Average, int Weight);
+
+    public record AttendanceSummaryDto(int Present, int Late, int Absent, int NoClass, double? Rate);
+}

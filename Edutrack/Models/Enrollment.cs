@@ -8,5 +8,19 @@
 // THEN: add a DbSet for it in Data/EdutrackContext.cs, set the unique indexes there,
 //       and create a migration: dotnet ef migrations add AddEnrollment
 //
-// STATUS:  EMPTY - not started. Delete this line when you begin.
 // ============================================================================
+
+using System.ComponentModel.DataAnnotations;
+
+namespace Edutrack.Models
+{
+    public class Enrollment
+    {
+        public int Id { get; set; }
+        [Required] public int SectionId { get; set; }
+        public Section? Section { get; set; }
+        [Required] public int StudentId { get; set; }
+        public User? Student { get; set; }
+        public DateTime EnrolledAt { get; set; } = DateTime.UtcNow;
+    }
+}

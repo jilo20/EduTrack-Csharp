@@ -17,6 +17,7 @@ using System.Security.Cryptography;
 using Edutrack.Data;
 using Edutrack.Dtos;
 using Edutrack.Models;
+using Edutrack.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +27,7 @@ namespace Edutrack.Controllers
 {
     [ApiController]
     [Route("/api/users")]
-    public class UsersController(EduTrackContext db, IPasswordHasher<User> hasher) : ControllerBase
+    public class UsersController(EduTrackContext db, IPasswordHasher<User> hasher, AuditLogService audit) : ControllerBase
     {
         private static readonly string[] Roles = ["Admin", "Teacher", "Student"];
 
@@ -73,8 +74,8 @@ namespace Edutrack.Controllers
             };
             user.Password = hasher.HashPassword(user, dto.Password);
             db.Users.Add(user);
+            await audit.Log("USER_CREATED", User, $"Created {role.Name} account for {user.FirstName} {user.LastName} ({user.Email})");
             await db.SaveChangesAsync();
-            // TODO 13.1: audit log "USER_CREATED" once AuditLogService exists.
 
             return CreatedAtAction(nameof(GetAll), null, UserDto.From(user));
         }
@@ -103,8 +104,8 @@ namespace Edutrack.Controllers
             user.RoleId = role.Id;
             user.Role = role;
             user.Status = dto.Status;
+            await audit.Log("USER_UPDATED", User, $"Updated account of {user.FirstName} {user.LastName} ({user.Email}, {role.Name}, {user.Status})");
             await db.SaveChangesAsync();
-            // TODO 13.1: audit log "USER_UPDATED" once AuditLogService exists.
 
             return Ok(UserDto.From(user));
         }
@@ -121,8 +122,8 @@ namespace Edutrack.Controllers
                 return BadRequest(new { error = "You cannot deactivate your own account." });
 
             user.Status = "inactive";
+            await audit.Log("USER_DEACTIVATED", User, $"Deactivated account for {user.FirstName} {user.LastName}");
             await db.SaveChangesAsync();
-            // TODO 13.1: audit log "USER_DEACTIVATED" once AuditLogService exists.
 
             return Ok(UserDto.From(user));
         }

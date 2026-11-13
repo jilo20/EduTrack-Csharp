@@ -8,5 +8,24 @@
 // THEN: add a DbSet for it in Data/EdutrackContext.cs, set the unique indexes there,
 //       and create a migration: dotnet ef migrations add AddAttendance
 //
-// STATUS:  EMPTY - not started. Delete this line when you begin.
 // ============================================================================
+
+using System.ComponentModel.DataAnnotations;
+
+namespace Edutrack.Models
+{
+    public class Attendance
+    {
+        public const string Present = "Present", Late = "Late", Absent = "Absent", NoClass = "No Class";
+        public static readonly string[] Statuses = [Present, Late, Absent, NoClass];
+
+        public int Id { get; set; }
+        [Required] public int StudentId { get; set; }
+        public User? Student { get; set; }
+        [Required] public int SectionId { get; set; }
+        public Section? Section { get; set; }
+        public DateOnly Date { get; set; }
+        [Required][MaxLength(10)] public required string Status { get; set; }
+        [MaxLength(200)] public string? Remarks { get; set; }
+    }
+}
