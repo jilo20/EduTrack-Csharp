@@ -134,7 +134,7 @@ namespace Edutrack.Controllers
             if (!int.TryParse(User.Identity?.Name, out var id)) return Unauthorized();
             var user = await db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
             if (user is null || user.Status != "active") return Unauthorized();
-            return Ok(new UserDto(user.Id, user.FirstName, user.LastName, user.Email, user.Role!.Name, user.IdNumber, user.Status));
+            return Ok(UserDto.From(user));
         }
 
         private Task<RegisteredId?> FindInvite(string idNumber) =>
@@ -143,9 +143,7 @@ namespace Edutrack.Controllers
 
         private AuthResponseDto BuildAuthResponse(User user)
         {
-            var role = user.Role!.Name;
-            return new AuthResponseDto(tokens.CreateToken(user, role),
-                new UserDto(user.Id, user.FirstName, user.LastName, user.Email, role, user.IdNumber, user.Status));
+            return new AuthResponseDto(tokens.CreateToken(user, user.Role!.Name), UserDto.From(user));
         }
     }
 }

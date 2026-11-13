@@ -10,6 +10,8 @@
 //
 // ============================================================================
 
+using Edutrack.Models;
+
 namespace Edutrack.Dtos
 {
     public record UserDto(
@@ -20,5 +22,10 @@ namespace Edutrack.Dtos
         string Role,
         string? IdNumber,
         string Status
-    );
+    )
+    {
+        // The user must be loaded with .Include(u => u.Role).
+        public static UserDto From(User u) =>
+            new(u.Id, u.FirstName, u.LastName, u.Email, u.Role!.Name, u.IdNumber, u.Status);
+    }
 }
