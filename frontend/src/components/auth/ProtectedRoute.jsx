@@ -1,20 +1,48 @@
-/*
- * ==========================================================================
- * FILE:    src/components/auth/ProtectedRoute.jsx
- * OWNER:   Abaquita, Kea
- * WBS:     4.8 Route Guards & Logout
- * PURPOSE: Blocks pages from users who are not logged in or have the wrong role.
- *
- * TODO: if there is no token, redirect to "/". If `roles` is given and the user's role is not in it, redirect to /dashboard.
- *       Also build logout: clear the token and user, then go to "/".
- * NOTE: right now it lets everyone through so the team can work.
- *
- * RULE:    Material UI components only. See frontend/README.md.
- * STATUS:  EMPTY - not started. Delete this line when you begin.
- * ==========================================================================
- */
+import { Navigate, useLocation } from 'react-router-dom';
+import { clearSession, getCurrentUser } from '../../api/client';
 
-// eslint-disable-next-line no-unused-vars
+const VALID_ROLES = ['Admin', 'Teacher', 'Student'];
+
+function isExpiredJwt(token) {
+  const parts = token.split('.');
+  if (parts.length !== 3) return false;
+
+  try {
+    const encodedPayload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const paddedPayload = encodedPayload.padEnd(Math.ceil(encodedPayload.length / 4) * 4, '=');
+    const payload = JSON.parse(atob(paddedPayload));
+    if (payload.exp === undefined) return false;
+    return typeof payload.exp !== 'number' || payload.exp * 1000 <= Date.now();
+  } catch {
+    return true;
+  }
+}
+
+function getAuthenticatedUser() {
+  try {
+    const token = localStorage.getItem('edutrack_token')?.trim();
+    const user = getCurrentUser();
+    if (!token || !user || typeof user !== 'object' || !VALID_ROLES.includes(user.role) || isExpiredJwt(token)) {
+      clearSession();
+      return null;
+    }
+    return user;
+  } catch {
+    try {
+      clearSession();
+    } catch {
+      // Storage may be unavailable; the guard still denies access.
+    }
+    return null;
+  }
+}
+
 export default function ProtectedRoute({ children, roles }) {
+  const location = useLocation();
+  const user = getAuthenticatedUser();
+
+  if (!user) return <Navigate to="/" replace state={{ from: location }} />;
+  if (roles?.length && !roles.includes(user.role)) return <Navigate to="/dashboard" replace />;
+
   return children;
 }
