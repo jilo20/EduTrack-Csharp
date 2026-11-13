@@ -31,6 +31,7 @@ import AddOutlined from '@mui/icons-material/AddOutlined';
 import ClassOutlined from '@mui/icons-material/ClassOutlined';
 import PeopleAltOutlined from '@mui/icons-material/PeopleAltOutlined';
 import SearchOutlined from '@mui/icons-material/SearchOutlined';
+import EnrollmentRoster from '../../components/teacher/EnrollmentRoster';
 import { createClass, getClasses } from '../../api/classes';
 import { getCurrentUser } from '../../api/client';
 
@@ -60,6 +61,8 @@ export default function TeacherClassesPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
+  const [rosterOpen, setRosterOpen] = useState(false);
+  const [selectedClass, setSelectedClass] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,6 +111,11 @@ export default function TeacherClassesPage() {
     setForm(emptyForm());
     setFormError('');
     setCreateOpen(true);
+  };
+
+  const openRoster = (classInfo) => {
+    setSelectedClass(classInfo);
+    setRosterOpen(true);
   };
 
   const closeCreateDialog = () => {
@@ -232,12 +240,13 @@ export default function TeacherClassesPage() {
               <TableCell sx={{ fontWeight: 800 }}>Schedule</TableCell>
               <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
               <TableCell align="center" sx={{ fontWeight: 800 }}>Enrolled</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 800 }}>Roster</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 7 }}>
+                <TableCell colSpan={6} align="center" sx={{ py: 7 }}>
                   <CircularProgress size={28} aria-label="Loading classes" />
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Loading your classes…</Typography>
                 </TableCell>
@@ -274,11 +283,16 @@ export default function TeacherClassesPage() {
                       <Typography fontWeight={800}>{item.studentCount ?? 0}</Typography>
                     </Stack>
                   </TableCell>
+                  <TableCell align="right">
+                    <Button size="small" variant="outlined" onClick={() => openRoster(item)} sx={{ borderRadius: 2, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      View Roster
+                    </Button>
+                  </TableCell>
                 </TableRow>
               );
             }) : (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
                   <ClassOutlined color="disabled" sx={{ fontSize: 42 }} />
                   <Typography fontWeight={700} sx={{ mt: 1 }}>
                     {loadError ? 'Classes could not be loaded.' : classes.length ? 'No classes match your filters.' : 'No classes assigned yet.'}
@@ -391,6 +405,12 @@ export default function TeacherClassesPage() {
           </DialogActions>
         </Box>
       </Dialog>
+
+      <EnrollmentRoster
+        open={rosterOpen}
+        selectedClass={selectedClass}
+        onClose={() => setRosterOpen(false)}
+      />
 
       <Snackbar open={Boolean(notice)} autoHideDuration={3500} onClose={() => setNotice('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
         <Alert severity="success" variant="filled" onClose={() => setNotice('')} sx={{ fontWeight: 600 }}>{notice}</Alert>
