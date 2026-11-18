@@ -1,6 +1,6 @@
 // ============================================================================
 // FILE:    Controllers/NotificationsController.cs
-// OWNER:   UNASSIGNED
+// OWNER:   Lopez, Mary Vincent
 // WBS:     12.2 Notifications API
 // PURPOSE: A user's notifications.
 //

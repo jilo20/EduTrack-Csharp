@@ -18,11 +18,11 @@ If the WBS changes, update this file and the `OWNER:` line in the affected files
 | Member | Tasks | Main area |
 |---|---|---|
 | Bazar, Angelo | 22 | Backend APIs: auth, users, classes, grading, attendance, analytics, announcements, audit |
-| Lopez, Mary Vincent | 14 | Invites, weights, and student APIs; admin, teacher, and common pages |
+| Lopez, Mary Vincent | 17 | Invites, weights, student, and notifications APIs; admin, teacher, and common pages |
 | Abaquita, Kea | 13 | Login and register, class pages, student pages, dashboards |
 | Peter, Nathalie | 16 | Database, seeding, testing, deployment |
 | Uytico, Felleandrei | 5 | Shared frontend: API client, layout, loading and error states |
-| Unassigned | 4 | Notifications API, UI review |
+| Unassigned | 1 | UI review |
 
 ---
 
@@ -74,6 +74,9 @@ If the WBS changes, update this file and the `OWNER:` line in the affected files
 | 9.4 My Attendance Page | Frontend | `frontend/src/pages/student/MyAttendancePage.jsx` | The student's own attendance. |
 | 10.1 Student Dashboard API, 10.2 Performance API, 10.3 Assessments List API | Backend | `Edutrack/Controllers/StudentsController.cs` | What a student sees about themselves. |
 | 10.1 - 10.3 | Backend | `Edutrack/Dtos/Students/` | DTOs: StudentDashboardDto, PerformanceDto |
+| 12.2 Notifications API | Backend | `Edutrack/Controllers/NotificationsController.cs` | A user's notifications. |
+| 12.2 Notifications API | Backend | `Edutrack/Services/NotificationService.cs` | One place to create notifications, used by other controllers. |
+| 12.2 | Backend | `Edutrack/Dtos/Notifications/` | DTOs: NotificationDto |
 | 12.3 Broadcast Center Page | Frontend | `frontend/src/pages/admin/BroadcastCenterPage.jsx` | Admin sends an announcement to all, teachers, or students. |
 | 12.4 Announcements Page | Frontend | `frontend/src/pages/common/AnnouncementsPage.jsx` | Everyone views announcements; a teacher can post to a class. |
 | 12.5 Notification Panel | Frontend | `frontend/src/components/common/NotificationPanel.jsx` | Bell icon with the unread count and the list of notifications. |
@@ -98,7 +101,6 @@ If the WBS changes, update this file and the `OWNER:` line in the affected files
 | 11.4 Admin Dashboard | Frontend | `frontend/src/pages/admin/AdminDashboardPage.jsx` | Totals and charts for the admin. |
 | 11.5 Teacher Dashboard | Frontend | `frontend/src/pages/teacher/TeacherDashboardPage.jsx` | Class summaries and charts for the teacher. |
 | 11.6 Student Analytics Charts | Frontend | `frontend/src/components/student/StudentAnalyticsCharts.jsx` | Charts of the student's performance. |
-| 13.3 Audit Logs Page | Frontend | `frontend/src/pages/admin/AuditLogsPage.jsx` | Admin reads the list of logged actions. |
 
 ---
 
@@ -119,6 +121,7 @@ If the WBS changes, update this file and the `OWNER:` line in the affected files
 | 3.1 Database Design & Migrations | Backend | `Edutrack/Models/AuditLog.cs` | Database table for AuditLog. |
 | 3.1 Database Design & Migrations | Backend | `Edutrack/Data/EdutrackContext.cs` (exists) | Add a DbSet for each new model. Add unique indexes: Users.Email, Users.IdNumber, RegisteredIds.IdNumber. |
 | 3.2 Seed Default Data | Backend | `Edutrack/Data/DataExtensions.cs` (exists) | Roles are already seeded. Add the default admin account (hashed password). |
+| 13.3 Audit Logs Page | Frontend | `frontend/src/pages/admin/AuditLogsPage.jsx` | Admin reads the list of logged actions. |
 | 15.1 Unit Testing | Testing | `docs/TESTING.md` | Test each API endpoint and each page on its own. |
 | 15.2 Integration Testing | Testing | `docs/TESTING.md` | Set VITE_USE_MOCK=false and test every page against the real API. |
 | 15.3 System Testing | Testing | `docs/TESTING.md` | Full flows per role: admin, teacher, student. |
@@ -148,9 +151,6 @@ _No X is plotted for these in the WBS. Angelo to assign._
 | WBS | Part | File | What to do |
 |---|---|---|---|
 | 2.6 UI Review | Docs |  | Review the existing Figma / React screens before the pages are rebuilt. |
-| 12.2 Notifications API | Backend | `Edutrack/Controllers/NotificationsController.cs` | A user's notifications. |
-| 12.2 Notifications API | Backend | `Edutrack/Services/NotificationService.cs` | One place to create notifications, used by other controllers. |
-| 12.2 | Backend | `Edutrack/Dtos/Notifications/` | DTOs: NotificationDto |
 
 ---
 
@@ -167,6 +167,6 @@ _No X is plotted for these in the WBS. Angelo to assign._
 | Student pages (Kea) | StudentsController (Mary Vincent) | mock: `mocks/students.js` |
 | Dashboards and charts (Kea) | AnalyticsController (Angelo) | mock: `mocks/analytics.js` |
 | Broadcast, Announcements (Mary Vincent) | AnnouncementsController (Angelo) | mock: `mocks/announcements.js` |
-| Notification Panel (Mary Vincent) | NotificationsController (**unassigned**) | mock: `mocks/notifications.js` |
+| Notification Panel (Mary Vincent) | NotificationsController (Mary Vincent) | mock: `mocks/notifications.js` |
 | Audit Logs (Kea) | AuditLogsController (Angelo) | mock: `mocks/auditLogs.js` |
 | Every model-based API (Angelo, Mary Vincent) | Models and migrations (Nathalie) | Nathalie's models come first |
