@@ -8,5 +8,24 @@
 // NAMESPACE:   Edutrack.Dtos   (not Edutrack.Dtos.User, even though the file is in a subfolder)
 // Put validation ([Required], [StringLength], [Range]) on INPUT DTOs only.
 //
-// STATUS:  EMPTY - not started. Delete this line when you begin.
 // ============================================================================
+
+using Edutrack.Models;
+
+namespace Edutrack.Dtos
+{
+    public record UserDto(
+        int Id,
+        string FirstName,
+        string LastName,
+        string Email,
+        string Role,
+        string? IdNumber,
+        string Status
+    )
+    {
+        // The user must be loaded with .Include(u => u.Role).
+        public static UserDto From(User u) =>
+            new(u.Id, u.FirstName, u.LastName, u.Email, u.Role!.Name, u.IdNumber, u.Status);
+    }
+}

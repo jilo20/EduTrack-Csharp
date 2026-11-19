@@ -3,6 +3,9 @@
 # React / Vite / Material UI
 # ==========================================
 
+# Dependencies
+node_modules/
+
 # Build output
 dist/
 build/
@@ -22,10 +25,19 @@ pnpm-debug.log*
 .env.*
 !.env.example
 !.env.sample
+!.env.development
 
 # ==========================================
 # ASP.NET Core
 # ==========================================
+
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio user files
+*.user
+*.suo
 
 # Local application settings
 appsettings.Local.json

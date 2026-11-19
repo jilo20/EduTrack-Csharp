@@ -8,5 +8,16 @@
 // NAMESPACE:   Edutrack.Dtos   (not Edutrack.Dtos.Assessments, even though the file is in a subfolder)
 // Put validation ([Required], [StringLength], [Range]) on INPUT DTOs only.
 //
-// STATUS:  EMPTY - not started. Delete this line when you begin.
 // ============================================================================
+
+using System.ComponentModel.DataAnnotations;
+
+namespace Edutrack.Dtos
+{
+    public record CreateAssessmentDto(
+        [Range(1, int.MaxValue)] int SectionId,
+        [Required][StringLength(150, MinimumLength = 3)] string Title,
+        [Required][StringLength(50)] string Type,
+        [Range(1, 999)] int PerfectScore
+    );
+}

@@ -1,6 +1,6 @@
 // ============================================================================
 // FILE:    Dtos/Notifications/NotificationDto.cs
-// OWNER:   UNASSIGNED
+// OWNER:   Lopez, Mary Vincent
 // WBS:     12.2
 // PURPOSE: Output. Id, Title, Message, Type, Status, CreatedAt.
 //

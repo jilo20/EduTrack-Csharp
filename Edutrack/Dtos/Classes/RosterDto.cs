@@ -8,5 +8,12 @@
 // NAMESPACE:   Edutrack.Dtos   (not Edutrack.Dtos.Classes, even though the file is in a subfolder)
 // Put validation ([Required], [StringLength], [Range]) on INPUT DTOs only.
 //
-// STATUS:  EMPTY - not started. Delete this line when you begin.
 // ============================================================================
+
+namespace Edutrack.Dtos
+{
+    public record RosterDto(int ClassId, string ClassName, string SectionCode, List<AssessmentDto> Assessments, List<RosterStudentDto> Students);
+
+    // Scores: assessment id -> score. A missing id means the score is still pending.
+    public record RosterStudentDto(int Id, string Name, string Email, string IdNumber, Dictionary<int, double> Scores);
+}
