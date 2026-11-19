@@ -1,12 +1,11 @@
-// ============================================================================
-// FILE:    Dtos/Students/StudentDashboardDto.cs
-// OWNER:   Lopez, Mary Vincent
-// WBS:     10.1 - 10.3
-// PURPOSE: Output. Classes, Gwa, EquivalentGrade, LatestScores, AttendanceRate.
-//
-// WRITE IT AS: public record StudentDashboardDto( ... );
-// NAMESPACE:   Edutrack.Dtos   (not Edutrack.Dtos.Students, even though the file is in a subfolder)
-// Put validation ([Required], [StringLength], [Range]) on INPUT DTOs only.
-//
-// STATUS:  EMPTY - not started. Delete this line when you begin.
-// ============================================================================
+﻿// OWNER: Lopez, Mary Vincent — WBS 10.1–10.3
+namespace Edutrack.Dtos;
+
+// Gwa is the average percentage used by the existing student pages and mocks.
+public record StudentDashboardDto(
+    double? Gwa, double? EquivalentGrade, double? AttendanceRate,
+    List<StudentDashboardClassDto> Classes, List<StudentLatestScoreDto> LatestScores);
+public record StudentDashboardClassDto(int Id, string Name, string SectionCode, string Teacher, double? Grade);
+public record StudentLatestScoreDto(string Assessment, string ClassName, double Score, int PerfectScore);
+public record StudentAssessmentDto(
+    int Id, string ClassName, string Title, string Type, double? Score, int PerfectScore, string Status);

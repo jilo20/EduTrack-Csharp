@@ -21,6 +21,8 @@ public class ClassWeightsController(EduTrackContext db) : ControllerBase
         var section = await db.Sections.FirstOrDefaultAsync(s => s.Id == id);
         if (section is null) return NotFound(new { error = "Class not found." });
         if (!User.IsInRole("Admin") && section.TeacherId != User.UserId()) return Forbid();
+        if (section.Status == "completed")
+            return BadRequest(new { error = "This class has ended. Grading weights are final." });
         section.Weights = new Dictionary<string, int>(weights);
         await db.SaveChangesAsync();
         return Ok(new { classId = id, weights = section.Weights });
