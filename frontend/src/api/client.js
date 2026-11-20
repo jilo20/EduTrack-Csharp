@@ -7,12 +7,10 @@
  *
  * MOCK MODE: VITE_USE_MOCK=true in .env.development makes every api function return data from src/mocks/
  *            so pages can be built before the C# API is ready. Set it to false to call the real API.
- * TODO: on a 401 response, clear the token and send the user to the login page;
- *       decide where the token is stored (the defense checklist prefers HttpOnly cookies over localStorage).
- * NOTE: the basic version below already works. Improve it, do not replace how other files call it.
+ * A 401 on an authenticated request clears the session and sends the user to the login page.
+ * NOTE: Keep the current storage approach unless the backend is updated to support cookies.
  *
  * RULE:    Material UI components only. See frontend/README.md.
- * STATUS:  EMPTY - not started. Delete this line when you begin.
  * ==========================================================================
  */
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
@@ -50,6 +48,10 @@ export async function request(path, { method = 'GET', body } = {}) {
     },
     body: body ? JSON.stringify(body) : undefined,
   });
+  if (response.status === 401 && token) {
+    clearSession();
+    window.location.assign('/');
+  }
   const data = response.status === 204 ? null : await response.json().catch(() => null);
   if (!response.ok) {
     throw new Error(data?.error || data?.detail || data?.title || `Request failed (${response.status})`);
