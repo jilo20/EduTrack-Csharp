@@ -47,7 +47,7 @@ function statusColor(status) {
 function SummaryTile({ label, count, icon, color }) {
   return (
     <Paper elevation={0} sx={{ p: 2.25, border: 1, borderColor: 'divider', borderRadius: 3, height: '100%' }}>
-      <Stack direction="row" spacing={1.5} alignItems="center">
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
         <Box sx={{ p: 1.2, display: 'flex', borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>{icon}</Box>
         <Box>
           <Typography variant="caption" color="text.secondary" fontWeight={700}>{label}</Typography>
@@ -129,7 +129,7 @@ export default function AssessmentsPage() {
 
       {loading ? (
         <Box sx={{ minHeight: 260, display: 'grid', placeItems: 'center' }}>
-          <Stack spacing={1.5} alignItems="center">
+          <Stack spacing={1.5} sx={{ alignItems: 'center' }}>
             <CircularProgress aria-label="Loading assessments" />
             <Typography variant="body2" color="text.secondary">Loading your assessments...</Typography>
           </Stack>
@@ -143,15 +143,13 @@ export default function AssessmentsPage() {
           </Grid>
 
           <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2.5 }, mb: 2.5, border: 1, borderColor: 'divider', borderRadius: 3 }}>
-            <Grid container spacing={1.5} alignItems="center">
+            <Grid container spacing={1.5} sx={{ alignItems: 'center' }}>
               <Grid size={{ xs: 12, md: 4 }}>
                 <TextField
                   placeholder="Search assessments or classes..."
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  InputProps={{ startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> }}
-                  inputProps={{ 'aria-label': 'Search assessments' }}
-                />
+                  slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> }, htmlInput: { 'aria-label': 'Search assessments' } }} />
               </Grid>
               <Grid size={{ xs: 12, sm: 4, md: 3 }}>
                 <FormControl fullWidth size="small">

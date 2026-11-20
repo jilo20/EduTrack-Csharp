@@ -248,10 +248,9 @@ export default function RegisterPage() {
                 error={Boolean(errors.inviteId)}
                 helperText={errors.inviteId}
                 disabled={isVerifying}
-                InputProps={{
+                slotProps={{ input: {
                   startAdornment: <InputAdornment position="start"><BadgeOutlined color="action" /></InputAdornment>,
-                }}
-              />
+                } }} />
               <Button
                 type="submit"
                 size="large"
@@ -339,7 +338,7 @@ export default function RegisterPage() {
                     error={Boolean(errors.password)}
                     helperText={errors.password || 'At least 8 characters.'}
                     disabled={isRegistering}
-                    InputProps={{
+                    slotProps={{ input: {
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
@@ -352,8 +351,7 @@ export default function RegisterPage() {
                           </IconButton>
                         </InputAdornment>
                       ),
-                    }}
-                  />
+                    } }} />
                   <TextField
                     label="Confirm Password"
                     name="confirmPassword"

@@ -86,7 +86,7 @@ export default function AdminClassesPage() {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} sx={{ mb: 3.5 }} spacing={1}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', mb: 3.5 }} spacing={1}>
         <Box>
           <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.5px' }}>All Classes</Typography>
           <Typography color="text.secondary" sx={{ mt: 0.5 }}>Institutional overview of all academic sections.</Typography>
@@ -101,15 +101,13 @@ export default function AdminClassesPage() {
       )}
 
       <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2.5 }, mb: 2.5, border: 1, borderColor: 'divider', borderRadius: 3 }}>
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} alignItems={{ md: 'center' }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ alignItems: { md: 'center' } }}>
           <TextField
             placeholder="Search by class, section, or teacher..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             sx={{ flex: 1, minWidth: { md: 280 }, '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: 'background.default' } }}
-            InputProps={{ startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> }}
-            inputProps={{ 'aria-label': 'Search classes' }}
-          />
+            slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> }, htmlInput: { 'aria-label': 'Search classes' } }} />
           <FormControl size="small" sx={{ minWidth: 170 }}>
             <Select
               value={statusFilter}
@@ -156,7 +154,7 @@ export default function AdminClassesPage() {
               return (
                 <TableRow key={item.id} hover>
                   <TableCell>
-                    <Stack direction="row" spacing={1.25} alignItems="center">
+                    <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center' }}>
                       <Box sx={{ width: 36, height: 36, display: 'grid', placeItems: 'center', flexShrink: 0, borderRadius: 2, bgcolor: 'primary.light', color: 'primary.dark' }}>
                         <ClassOutlined fontSize="small" />
                       </Box>
@@ -168,7 +166,7 @@ export default function AdminClassesPage() {
                   </TableCell>
                   <TableCell>
                     {teacherName ? (
-                      <Stack direction="row" spacing={1} alignItems="center">
+                      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                         <Avatar sx={{ width: 28, height: 28, fontSize: '0.7rem', fontWeight: 700, bgcolor: 'secondary.main' }}>{teacherName.charAt(0).toUpperCase()}</Avatar>
                         <Typography variant="body2" fontWeight={600}>{teacherName}</Typography>
                       </Stack>

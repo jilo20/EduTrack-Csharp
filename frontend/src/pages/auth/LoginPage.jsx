@@ -173,7 +173,7 @@ export default function LoginPage() {
               error={Boolean(errors.password)}
               helperText={errors.password}
               disabled={isSubmitting}
-              InputProps={{
+              slotProps={{ input: {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
@@ -186,8 +186,7 @@ export default function LoginPage() {
                     </IconButton>
                   </InputAdornment>
                 ),
-              }}
-            />
+              } }} />
             <Button
               id="login-submit"
               type="submit"

@@ -69,7 +69,7 @@ export default function UserManagerPage() {
   const change = (key) => (e) => setForm((previous) => ({ ...previous, [key]: e.target.value }));
 
   return <Stack spacing={3}>
-    <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+    <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
       <Typography variant="h4">User Manager</Typography>
       <Button variant="contained" onClick={() => edit(null)}>Add {role.toLowerCase()}</Button>
     </Stack>

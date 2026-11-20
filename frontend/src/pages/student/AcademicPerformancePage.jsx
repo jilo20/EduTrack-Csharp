@@ -48,7 +48,7 @@ function SummaryCard({ title, value, detail, icon, color }) {
   return (
     <Card elevation={0} sx={{ height: '100%', border: 1, borderColor: 'divider', borderRadius: 3 }}>
       <CardContent sx={{ p: { xs: 2.5, sm: 3 }, '&:last-child': { pb: { xs: 2.5, sm: 3 } } }}>
-        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 2 }}>
           <Box sx={{ p: 1.3, display: 'flex', borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>{icon}</Box>
           <Typography variant="subtitle1" fontWeight={700}>{title}</Typography>
         </Stack>
@@ -66,12 +66,12 @@ function CategoryRow({ category }) {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ sm: 'center' }} spacing={0.5}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0.5} sx={{ alignItems: { sm: 'center' }, justifyContent: 'space-between' }}>
         <Typography variant="body2" fontWeight={700}>
           {category.type || 'Category'}
           {weight !== null && <Typography component="span" variant="caption" color="text.secondary"> ({weight}% weight)</Typography>}
         </Typography>
-        <Stack direction="row" spacing={1} alignItems="baseline">
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
           {equivalentGrade != null && <Typography variant="body2" fontWeight={800}>{equivalentGrade}</Typography>}
           <Typography variant="body2" fontWeight={800} color="primary.main">{average === null ? 'No grade' : `${average}%`}</Typography>
         </Stack>
@@ -99,8 +99,8 @@ function ClassPerformanceCard({ item }) {
   return (
     <Card elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, height: '100%' }}>
       <CardContent sx={{ p: { xs: 2.5, sm: 3 }, '&:last-child': { pb: { xs: 2.5, sm: 3 } } }}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ sm: 'flex-start' }} spacing={2} sx={{ mb: 2.5 }}>
-          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 0 }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: { sm: 'flex-start' }, justifyContent: 'space-between', mb: 2.5 }}>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', minWidth: 0 }}>
             <Box sx={{ p: 1.25, display: 'flex', borderRadius: 2, bgcolor: 'primary.light', color: 'primary.dark', flexShrink: 0 }}><ClassOutlined /></Box>
             <Box sx={{ minWidth: 0 }}>
               <Typography variant="h6" fontWeight={800}>{className(item)}</Typography>
@@ -111,7 +111,7 @@ function ClassPerformanceCard({ item }) {
               </Stack>
             </Box>
           </Stack>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexShrink: 0 }}>
             {equivalentGrade != null && <Chip label={`Equivalent ${equivalentGrade}`} color="primary" sx={{ fontWeight: 800 }} />}
             {grade !== null && <Chip label={`${grade}%`} variant="outlined" sx={{ fontWeight: 800 }} />}
           </Stack>
@@ -120,7 +120,7 @@ function ClassPerformanceCard({ item }) {
         {description && <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{description}</Typography>}
         {grade !== null && (
           <Box sx={{ mb: 2.5 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.75 }}>
+            <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
               <Typography variant="body2" color="text.secondary" fontWeight={700}>Overall Grade</Typography>
               <Typography variant="body2" fontWeight={800}>{grade}%</Typography>
             </Stack>
@@ -235,7 +235,7 @@ export default function AcademicPerformancePage() {
           </Grid>
 
           <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2.5 }, mb: 2.5, border: 1, borderColor: 'divider', borderRadius: 3 }}>
-            <Grid container spacing={1.5} alignItems="center">
+            <Grid container spacing={1.5} sx={{ alignItems: 'center' }}>
               <Grid size={{ xs: 12, md: 4 }}>
                 <FormControl fullWidth size="small">
                   <InputLabel id="performance-class-filter-label">Filter by Class</InputLabel>
@@ -256,9 +256,7 @@ export default function AcademicPerformancePage() {
                   placeholder="Search classes or categories..."
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  InputProps={{ startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> }}
-                  inputProps={{ 'aria-label': 'Search academic performance' }}
-                />
+                  slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> }, htmlInput: { 'aria-label': 'Search academic performance' } }} />
               </Grid>
             </Grid>
           </Paper>

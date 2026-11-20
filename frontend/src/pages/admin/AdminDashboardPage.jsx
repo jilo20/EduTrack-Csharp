@@ -52,7 +52,7 @@ function StatCard({ label, value, icon, color }) {
       }}
     >
       <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
           <Box sx={{ p: 1.4, borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main`, display: 'flex' }}>
             {icon}
           </Box>
@@ -133,7 +133,7 @@ export default function AdminDashboardPage() {
       <Grid container spacing={2.5}>
         {STAT_CARDS.map((stat) => (
           <Grid key={stat.key} size={{ xs: 12, sm: 6, xl: 3 }}>
-            <StatCard {...stat} value={totals[stat.key]} />
+            <StatCard label={stat.label} icon={stat.icon} color={stat.color} value={totals[stat.key]} />
           </Grid>
         ))}
 

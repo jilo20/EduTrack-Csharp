@@ -43,7 +43,7 @@ export default function InviteCenterPage() {
     (status === 'all' || i.isUsed === (status === 'used')));
 
   return <Stack spacing={3}>
-    <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+    <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
       <Typography variant="h4">Invite Center</Typography>
       <Button variant="contained" onClick={() => { setSaveError(''); setOpen(true); }}>Generate invite</Button>
     </Stack>

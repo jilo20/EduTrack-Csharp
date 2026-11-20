@@ -72,8 +72,11 @@ namespace Edutrack.Controllers
             if (teacher is null || teacher.Role!.Name != "Teacher" || teacher.Status != "active")
                 return BadRequest(new { error = "The teacher must be an active teacher account." });
 
-            var weights = (dto.Weights is { Count: > 0 } ? dto.Weights : Section.DefaultWeights())
-                .ToDictionary(w => w.Key.Trim(), w => w.Value);
+            var rawWeights = dto.Weights is { Count: > 0 } ? dto.Weights : Section.DefaultWeights();
+            // "Quiz" and " quiz " are the same category once trimmed; reject instead of crashing in ToDictionary.
+            if (rawWeights.Keys.Select(k => k.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Count() != rawWeights.Count)
+                return BadRequest(new { error = "Category names must be unique." });
+            var weights = rawWeights.ToDictionary(w => w.Key.Trim(), w => w.Value);
             var weightError = CheckWeights(weights);
             if (weightError is not null) return BadRequest(new { error = weightError });
 

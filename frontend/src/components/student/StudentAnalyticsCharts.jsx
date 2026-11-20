@@ -103,7 +103,7 @@ export default function StudentAnalyticsCharts() {
   if (loading) {
     return (
       <Box sx={{ display: 'grid', placeItems: 'center', minHeight: 220 }}>
-        <Stack spacing={1.5} alignItems="center">
+        <Stack spacing={1.5} sx={{ alignItems: 'center' }}>
           <CircularProgress aria-label="Loading student analytics" />
           <Typography variant="body2" color="text.secondary">Loading performance analytics...</Typography>
         </Stack>

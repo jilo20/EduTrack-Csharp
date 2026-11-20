@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Avatar,
@@ -20,21 +20,7 @@ import EventAvailableOutlined from '@mui/icons-material/EventAvailableOutlined';
 import SchoolOutlined from '@mui/icons-material/SchoolOutlined';
 import TrendingUpOutlined from '@mui/icons-material/TrendingUpOutlined';
 import { Link as RouterLink } from 'react-router-dom';
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  PolarAngleAxis,
-  PolarGrid,
-  PolarRadiusAxis,
-  Radar,
-  RadarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-import { getStudentAnalytics } from '../../api/analytics';
+import StudentAnalyticsCharts from '../../components/student/StudentAnalyticsCharts';
 import { getStudentAttendance } from '../../api/attendance';
 import { getCurrentUser } from '../../api/client';
 import { getStudentAssessments, getStudentDashboard } from '../../api/students';
@@ -72,7 +58,7 @@ function SummaryCard({ title, value, detail, icon, color, progress, to }) {
       }}
     >
       <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 2 }}>
           <Box sx={{ p: 1.25, display: 'flex', borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>{icon}</Box>
           <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{title}</Typography>
         </Stack>
@@ -108,25 +94,14 @@ function SectionPanel({ title, subtitle, action, children, sx }) {
   );
 }
 
-function ChartPanel({ title, children }) {
-  return (
-    <Paper elevation={0} sx={{ p: { xs: 2, sm: 2.5 }, border: 1, borderColor: 'divider', borderRadius: 3, minHeight: 340, height: '100%' }}>
-      <Typography variant="h6" fontWeight={800}>{title}</Typography>
-      {children}
-    </Paper>
-  );
-}
-
 export default function StudentDashboardPage() {
   const user = getCurrentUser();
   const studentId = user?.id;
   const [dashboard, setDashboard] = useState(null);
-  const [analytics, setAnalytics] = useState(null);
   const [attendance, setAttendance] = useState(null);
   const [assessments, setAssessments] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState('');
-  const [analyticsUnavailable, setAnalyticsUnavailable] = useState(false);
   const [attendanceUnavailable, setAttendanceUnavailable] = useState(false);
   const [assessmentsUnavailable, setAssessmentsUnavailable] = useState(false);
 
@@ -139,13 +114,11 @@ export default function StudentDashboardPage() {
 
     setLoading(true);
     setDashboardError('');
-    setAnalyticsUnavailable(false);
     setAttendanceUnavailable(false);
     setAssessmentsUnavailable(false);
 
-    const [dashboardResult, analyticsResult, attendanceResult, assessmentsResult] = await Promise.allSettled([
+    const [dashboardResult, attendanceResult, assessmentsResult] = await Promise.allSettled([
       getStudentDashboard(studentId),
-      getStudentAnalytics(studentId),
       getStudentAttendance(studentId),
       getStudentAssessments(studentId),
     ]);
@@ -159,11 +132,6 @@ export default function StudentDashboardPage() {
         : 'We could not load your academic dashboard. Check your connection and try again.');
     }
 
-    if (analyticsResult.status === 'fulfilled') setAnalytics(analyticsResult.value ?? null);
-    else {
-      setAnalytics(null);
-      setAnalyticsUnavailable(true);
-    }
     if (attendanceResult.status === 'fulfilled') setAttendance(attendanceResult.value ?? null);
     else {
       setAttendance(null);
@@ -182,12 +150,6 @@ export default function StudentDashboardPage() {
 
   const classes = Array.isArray(dashboard?.classes) ? dashboard.classes : [];
   const latestScores = Array.isArray(dashboard?.latestScores) ? dashboard.latestScores : [];
-  const trend = Array.isArray(analytics?.trend) ? analytics.trend : [];
-  const categories = useMemo(() => (
-    Array.isArray(analytics?.byCategory)
-      ? analytics.byCategory.map((item) => ({ subject: item.type, mastery: item.average })).filter((item) => item.subject && asNumber(item.mastery) !== null)
-      : []
-  ), [analytics]);
   const pendingAssessments = Array.isArray(assessments)
     ? assessments.filter((item) => /pending|upcoming|not submitted|in progress/i.test(getAssessmentStatus(item)))
     : [];
@@ -255,42 +217,8 @@ export default function StudentDashboardPage() {
             </Grid>
           </Grid>
 
-          <Grid container spacing={2.5} sx={{ mb: 2.5 }}>
-            <Grid size={{ xs: 12, lg: 7 }}>
-              <ChartPanel title="Performance Over Time">
-                {analyticsUnavailable ? <Typography color="text.secondary" sx={{ mt: 3 }}>Performance information is currently unavailable.</Typography> : trend.length ? (
-                  <Box sx={{ width: '100%', height: 270, mt: 2 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={trend} margin={{ top: 8, right: 16, left: -16, bottom: 6 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e8edf3" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} />
-                        <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                        <Tooltip formatter={(value) => [`${value}%`, 'Score']} contentStyle={{ border: 0, borderRadius: 12, boxShadow: '0 12px 28px rgba(15,23,42,0.12)' }} />
-                        <Line type="monotone" dataKey="score" stroke="#2563eb" strokeWidth={3} dot={{ r: 4, fill: '#2563eb', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </Box>
-                ) : <Typography color="text.secondary" sx={{ mt: 3 }}>No performance trend is available yet.</Typography>}
-              </ChartPanel>
-            </Grid>
-            <Grid size={{ xs: 12, lg: 5 }}>
-              <ChartPanel title="Category Mastery">
-                {analyticsUnavailable ? <Typography color="text.secondary" sx={{ mt: 3 }}>Category information is currently unavailable.</Typography> : categories.length ? (
-                  <Box sx={{ width: '100%', height: 270, mt: 2 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart data={categories}>
-                        <PolarGrid stroke="#e2e8f0" />
-                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 10, fontWeight: 600 }} />
-                        <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-                        <Radar name="Mastery" dataKey="mastery" stroke="#7c3aed" fill="#7c3aed" fillOpacity={0.35} />
-                        <Tooltip formatter={(value) => [`${value}%`, 'Average']} />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </Box>
-                ) : <Typography color="text.secondary" sx={{ mt: 3 }}>No category performance is available yet.</Typography>}
-              </ChartPanel>
-            </Grid>
-          </Grid>
+          {/* 11.6: shared charts component (loads its own analytics, has its own loading/error state). */}
+          <Box sx={{ mb: 2.5 }}><StudentAnalyticsCharts /></Box>
 
           <Grid container spacing={2.5}>
             <Grid size={{ xs: 12, lg: 7 }}>
@@ -301,7 +229,7 @@ export default function StudentDashboardPage() {
               >
                 {classes.length ? classes.map((item, index) => (
                   <Box key={item.id ?? item.sectionCode ?? item.name}>
-                    <Stack direction="row" spacing={1.5} alignItems="center" sx={{ p: { xs: 2, sm: 2.5 } }}>
+                    <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', p: { xs: 2, sm: 2.5 } }}>
                       <Avatar sx={{ bgcolor: 'primary.light', color: 'primary.dark', fontWeight: 800 }}>{item.name?.[0] ?? 'C'}</Avatar>
                       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                         <Typography fontWeight={700} noWrap>{item.name || 'Class'}</Typography>
@@ -326,7 +254,7 @@ export default function StudentDashboardPage() {
                 {assessmentsUnavailable && <Alert severity="info" sx={{ mx: 2.5, mb: 1 }}>Assessment information is currently unavailable.</Alert>}
                 {pendingAssessments.length ? pendingAssessments.slice(0, 3).map((item, index) => (
                   <Box key={item.id ?? `${item.title}-${index}`}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2} sx={{ p: 2.5 }}>
+                    <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between', p: 2.5 }}>
                       <Box sx={{ minWidth: 0 }}>
                         <Typography fontWeight={700} noWrap>{item.title || 'Assessment'}</Typography>
                         <Typography variant="body2" color="text.secondary" noWrap>{item.className || item.type || 'Class details unavailable'}</Typography>
@@ -345,7 +273,7 @@ export default function StudentDashboardPage() {
                     <Box sx={{ px: 2.5, pt: 2 }}><Typography variant="subtitle2" color="text.secondary" fontWeight={800}>LATEST SCORES</Typography></Box>
                     {latestScores.slice(0, 2).map((item, index) => (
                       <Box key={`${item.assessment ?? 'score'}-${index}`}>
-                        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2} sx={{ p: 2.5, pt: 1.5 }}>
+                        <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between', p: 2.5, pt: 1.5 }}>
                           <Box sx={{ minWidth: 0 }}>
                             <Typography variant="body2" fontWeight={700} noWrap>{item.assessment || 'Assessment'}</Typography>
                             <Typography variant="caption" color="text.secondary" noWrap>{item.className || 'Class details unavailable'}</Typography>
