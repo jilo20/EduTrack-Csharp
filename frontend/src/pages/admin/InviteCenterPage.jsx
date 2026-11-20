@@ -1,6 +1,6 @@
-﻿// OWNER: Lopez, Mary Vincent | WBS 5.2 Invite Center
+// OWNER: Lopez, Mary Vincent | WBS 5.2 Invite Center
 import { useEffect, useState } from 'react';
-import { Alert, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Alert, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { getInvites, createInvite } from '../../api/invites';
 import LoadingState from '../../components/common/LoadingState';
 import ErrorState from '../../components/common/ErrorState';
@@ -58,9 +58,9 @@ export default function InviteCenterPage() {
         <MenuItem value="all">All statuses</MenuItem><MenuItem value="available">Available</MenuItem><MenuItem value="used">Used</MenuItem>
       </TextField>
     </Stack>
-    {loading ? <><LoadingState /><Stack direction="row" spacing={2}><CircularProgress size={24} /><Typography>Loading invites…</Typography></Stack></> :
-      error ? <><ErrorState message={error} onRetry={load} /><Alert severity="error" action={<Button color="inherit" onClick={load}>Retry</Button>}>{error}</Alert></> :
-      visible.length === 0 ? <><EmptyState title="No invites found" /><Alert severity="info">No invites match. Change your filters or generate an invite.</Alert></> :
+    {loading ? <LoadingState message="Loading invites…" /> :
+      error ? <ErrorState message={error} onRetry={load} /> :
+      visible.length === 0 ? <EmptyState title="No invites found" description="No invites match. Change your filters or generate an invite." /> :
       <TableContainer component={Paper}><Table aria-label="Invite IDs">
         <TableHead><TableRow>{['Invite ID', 'Role', 'Status', 'Created'].map((h) => <TableCell key={h}>{h}</TableCell>)}</TableRow></TableHead>
         <TableBody>{visible.map((i) => <TableRow key={i.id}>

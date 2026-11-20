@@ -1,0 +1,268 @@
+{
+  "date": "2026-11-21",
+  "scope": "All task rows from docs/TEAM_TASKS.md after merging every origin team branch",
+  "branches": {
+    "origin/main": "2d9933b145153e152b07d052630540254f510762",
+    "origin/Abaquita": "681857da810649bd87c71041fdb804d06f92db1d",
+    "origin/Uytico": "275de8403c6fb7a5513723db2a70d77947f2b85d",
+    "origin/mary-vincents-work": "c708846e3b9e9d4b254707356acf4654abc4514a"
+  },
+  "taskRows": 74,
+  "verification": {
+    "backendBuild": "Passed, 0 warnings / 0 errors",
+    "frontendBuild": "Passed; existing main bundle-size warning",
+    "frontendDependencies": "Clean npm ci stalled; used existing dependencies via local junction; all 15 direct dependency versions match merged lockfile",
+    "lint": "0 errors, 15 warnings",
+    "csvTests": "3 passed",
+    "inMemoryApiChecks": "34 passed; additional duplicate-category bug reproduction confirmed",
+    "browser": "53 mock browser checks passed: 27 feature flows, 18 role-route smoke checks, 6 mobile/error/read-only checks, and 2 detailed CSV-download checks. No runtime exceptions in smoke flows.",
+    "liveMySql": "Not run",
+    "deployment": "Not verified"
+  },
+  "integrationFixes": [
+    "Preserved main removal of generated bin/obj files when merging Uytico",
+    "Removed duplicate state fallbacks in Mary pages now that shared components are implemented"
+  ],
+  "findings": [
+    {
+      "id": "MARY-12.2",
+      "severity": "High",
+      "owner": "Lopez, Mary Vincent",
+      "wbs": "12.2",
+      "files": [
+        "Edutrack/Controllers/NotificationsController.cs",
+        "Edutrack/Dtos/Notifications/NotificationDto.cs"
+      ],
+      "finding": "NotificationsController and NotificationDto are comments-only placeholders. GET/read/read-all/clear endpoints do not exist. NotificationService is implemented.",
+      "next": "Implement authenticated user-scoped endpoints and output DTO; test isolation, badge/read/clear behavior against the real API.",
+      "evidence": [
+        {
+          "file": "Edutrack/Controllers/NotificationsController.cs",
+          "line": 13
+        },
+        {
+          "file": "Edutrack/Dtos/Notifications/NotificationDto.cs",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "id": "NATHALIE-15",
+      "severity": "High",
+      "owner": "Peter, Nathalie",
+      "wbs": "15.1?15.5",
+      "files": [
+        "docs/TESTING.md"
+      ],
+      "finding": "Testing log is still STATUS: EMPTY. Only the CSV export tests are tracked; no backend test project, integration/system/UAT results or deployment evidence was found in the repository.",
+      "next": "Record API/page/unit/integration/system/UAT evidence and deployment instructions; link external artifacts if they already exist.",
+      "evidence": [
+        {
+          "file": "docs/TESTING.md",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "id": "ANGELO-7.1",
+      "severity": "Medium",
+      "owner": "Bazar, Angelo",
+      "wbs": "7.1",
+      "files": [
+        "Edutrack/Controllers/ClassesController.cs"
+      ],
+      "finding": "Confirmed using an in-memory controller test: weights with keys Quiz and space-Quiz-space throw an unhandled ArgumentException when trimmed into a dictionary.",
+      "next": "Normalize and detect duplicate categories before ToDictionary; return a 400 validation response.",
+      "evidence": [
+        {
+          "file": "Edutrack/Controllers/ClassesController.cs",
+          "line": 76
+        }
+      ]
+    },
+    {
+      "id": "KEA-7.5",
+      "severity": "Medium",
+      "owner": "Abaquita, Kea",
+      "wbs": "7.5",
+      "files": [
+        "frontend/src/pages/teacher/TeacherClassesPage.jsx",
+        "Edutrack/Dtos/Classes/CreateClassDto.cs"
+      ],
+      "finding": "Teacher Classes permits a passing grade of 0, while CreateClassDto requires 1 through 100. Such a form passes frontend validation and is rejected by the API.",
+      "next": "Align frontend range, helper text and number-input minimum with the backend.",
+      "evidence": [
+        {
+          "file": "frontend/src/pages/teacher/TeacherClassesPage.jsx",
+          "line": 150
+        },
+        {
+          "file": "Edutrack/Dtos/Classes/CreateClassDto.cs",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "id": "MOCK-INVITES",
+      "severity": "Medium",
+      "owner": "Abaquita, Kea / Lopez, Mary Vincent (integration)",
+      "wbs": "4.7 / 5.1 / 5.2",
+      "files": [
+        "frontend/src/api/auth.js",
+        "frontend/src/mocks/invites.js",
+        "frontend/src/api/invites.js"
+      ],
+      "finding": "Mock verifyId/register assign Teacher only to T-prefixed IDs and accept any invite. Numeric Teacher invites use year+6 digits and are therefore treated as Student. Mock mutations generally do not persist across reloads.",
+      "next": "Use shared mock invite state for creation, verification and registration, including role and isUsed validation, or test the real API.",
+      "evidence": [
+        {
+          "file": "frontend/src/api/auth.js",
+          "line": 14
+        },
+        {
+          "file": "frontend/src/mocks/invites.js",
+          "line": null
+        },
+        {
+          "file": "frontend/src/api/invites.js",
+          "line": null
+        }
+      ]
+    },
+    {
+      "id": "KEA-THEME",
+      "severity": "Low",
+      "owner": "Abaquita, Kea",
+      "wbs": "4.6 / 4.7 / 10.4",
+      "files": [
+        "frontend/src/pages/auth/LoginPage.jsx",
+        "frontend/src/pages/auth/RegisterPage.jsx",
+        "frontend/src/pages/student/StudentDashboardPage.jsx"
+      ],
+      "finding": "These pages contain hard-coded hex colors, contrary to frontend/README.md. Several Kea pages also render inline states instead of the mandated shared state components.",
+      "next": "Move colors into the theme, use theme values for charts and styling, and reuse shared state components.",
+      "evidence": [
+        {
+          "file": "frontend/src/pages/auth/LoginPage.jsx",
+          "line": 75
+        },
+        {
+          "file": "frontend/src/pages/auth/RegisterPage.jsx",
+          "line": 157
+        },
+        {
+          "file": "frontend/src/pages/student/StudentDashboardPage.jsx",
+          "line": 265
+        }
+      ]
+    },
+    {
+      "id": "KEA-11.6",
+      "severity": "Low",
+      "owner": "Abaquita, Kea",
+      "wbs": "11.6",
+      "files": [
+        "frontend/src/components/student/StudentAnalyticsCharts.jsx",
+        "frontend/src/pages/student/StudentDashboardPage.jsx"
+      ],
+      "finding": "StudentAnalyticsCharts is implemented but is not imported by any page. StudentDashboardPage renders its own charts instead.",
+      "next": "Confirm whether the reusable component should be mounted or consolidate the duplicate chart implementation.",
+      "evidence": [
+        {
+          "file": "frontend/src/components/student/StudentAnalyticsCharts.jsx",
+          "line": 52
+        },
+        {
+          "file": "frontend/src/pages/student/StudentDashboardPage.jsx",
+          "line": null
+        }
+      ]
+    },
+    {
+      "id": "SHARED-MUI",
+      "severity": "Low",
+      "owner": "Uytico, Felleandrei / frontend owners",
+      "wbs": "14.3 / shared layout",
+      "files": [
+        "frontend/src/components/common/LoadingState.jsx",
+        "frontend/src/components/layout/DashboardLayout.jsx"
+      ],
+      "finding": "Browser console reports unsupported alignItems/primaryTypographyProps being passed to DOM elements in existing shared UI. Source lint also has 15 warnings, mainly effect state updates and student memoization.",
+      "next": "Use supported sx/slotProps APIs and resolve lint warnings. These did not prevent the build or mock browser smoke tests.",
+      "evidence": [
+        {
+          "file": "frontend/src/components/common/LoadingState.jsx",
+          "line": 24
+        },
+        {
+          "file": "frontend/src/components/layout/DashboardLayout.jsx",
+          "line": 141
+        }
+      ]
+    },
+    {
+      "id": "ANGELO-DOCS",
+      "severity": "Unverified",
+      "owner": "Bazar, Angelo",
+      "wbs": "2.2?2.4",
+      "files": [],
+      "finding": "Project Plan, WBS spreadsheet and HLD were not found among tracked repository files. This does not prove they are absent from external storage.",
+      "next": "Link the current external documents or add the agreed repository copies.",
+      "evidence": []
+    },
+    {
+      "id": "NATHALIE-ERD",
+      "severity": "Unverified",
+      "owner": "Peter, Nathalie",
+      "wbs": "2.5",
+      "files": [
+        "Edutrack/Data/EdutrackContext.cs"
+      ],
+      "finding": "Models, DbSets, migrations and seeding exist. No ERD artifact was found. The task mentions 10 tables while the context contains 11 DbSets.",
+      "next": "Provide or link the final ERD and reconcile its table count with the current schema.",
+      "evidence": [
+        {
+          "file": "Edutrack/Data/EdutrackContext.cs",
+          "line": 10
+        }
+      ]
+    },
+    {
+      "id": "FELLEANDREI-2.1",
+      "severity": "Unverified",
+      "owner": "Uytico, Felleandrei",
+      "wbs": "2.1",
+      "files": [],
+      "finding": "Shared UI states and 401 session handling are implemented. No requirements-gathering artifact was found in tracked files.",
+      "next": "Provide or link the approved requirements list.",
+      "evidence": []
+    },
+    {
+      "id": "UNASSIGNED-2.6",
+      "severity": "Unverified",
+      "owner": "Unassigned",
+      "wbs": "2.6",
+      "files": [],
+      "finding": "UI Review remains unassigned and no review evidence was found in tracked files.",
+      "next": "Assign an owner and record the review outcome.",
+      "evidence": []
+    },
+    {
+      "id": "ENV-NET10",
+      "severity": "Environment",
+      "owner": "Local development environment",
+      "wbs": "Integration testing",
+      "files": [
+        "Edutrack/Edutrack.csproj"
+      ],
+      "finding": "Only .NET 11 runtimes are installed on this computer, while the API targets net10.0. Compilation succeeds, but normal API execution requires the .NET 10 runtime. Live MySQL integration and deployment were not tested; no database migrations were applied during this audit.",
+      "next": "Install the .NET 10 SDK/ASP.NET Core runtime and perform live API integration testing in a test database.",
+      "evidence": [
+        {
+          "file": "Edutrack/Edutrack.csproj",
+          "line": 4
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
-﻿// OWNER: Lopez, Mary Vincent | WBS 6.4 User Manager
+// OWNER: Lopez, Mary Vincent | WBS 6.4 User Manager
 import { useEffect, useState } from 'react';
-import { Alert, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Paper, Stack, Tab, Tabs, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Alert, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Paper, Stack, Tab, Tabs, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { getUsers, createUser, updateUser, deactivateUser } from '../../api/users';
 import LoadingState from '../../components/common/LoadingState';
 import ErrorState from '../../components/common/ErrorState';
@@ -78,9 +78,9 @@ export default function UserManagerPage() {
       <Tab label="Students" value="Student" /><Tab label="Teachers" value="Teacher" />
     </Tabs>
     <TextField label="Search name, email, or ID" value={search} onChange={(e) => setSearch(e.target.value)} />
-    {loading ? <><LoadingState /><Stack direction="row" spacing={2}><CircularProgress size={24} /><Typography>Loading accounts…</Typography></Stack></> :
-      error ? <><ErrorState message={error} onRetry={load} /><Alert severity="error" action={<Button color="inherit" onClick={load}>Retry</Button>}>{error}</Alert></> :
-      visible.length === 0 ? <><EmptyState title="No accounts found" /><Alert severity="info">No accounts match your search in this tab.</Alert></> :
+    {loading ? <LoadingState message="Loading accounts…" /> :
+      error ? <ErrorState message={error} onRetry={load} /> :
+      visible.length === 0 ? <EmptyState title="No accounts found" description="No accounts match your search in this tab." /> :
       <TableContainer component={Paper}><Table aria-label="User accounts">
         <TableHead><TableRow>{['Name', 'Email', 'ID', 'Status', 'Actions'].map((h) => <TableCell key={h}>{h}</TableCell>)}</TableRow></TableHead>
         <TableBody>{visible.map((u) => <TableRow key={u.id}>
