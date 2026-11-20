@@ -1,21 +1,14 @@
-/*
- * ==========================================================================
- * FILE:    src/pages/admin/BroadcastCenterPage.jsx
- * OWNER:   Lopez, Mary Vincent
- * WBS:     12.3 Broadcast Center Page
- * PURPOSE: Admin sends an announcement to all, teachers, or students.
- *
- * API:  createAnnouncement(data) from src/api/announcements.js
- * TODO: form with title, content, priority (normal / high / urgent), and target (all / teachers / students).
- * MUI:  TextField, Select, Button, Snackbar
- *
- * RULE:    Material UI components only. See frontend/README.md.
- * STATUS:  EMPTY - not started. Delete this line when you begin.
- * ==========================================================================
- */
-
-import PagePlaceholder from '../../components/common/PagePlaceholder';
+﻿// OWNER: Lopez, Mary Vincent — WBS 12.3 Broadcast Center
+import { useState } from 'react';
+import { Alert, Paper, Stack, Typography } from '@mui/material';
+import AnnouncementComposer from '../../components/common/AnnouncementComposer';
 
 export default function BroadcastCenterPage() {
-  return <PagePlaceholder title="Broadcast Center" owner="Lopez, Mary Vincent" file="src/pages/admin/BroadcastCenterPage.jsx" />;
+  const [sent, setSent] = useState(null);
+  return <Stack spacing={3} sx={{ maxWidth: 850 }}>
+    <Typography variant="h4">Broadcast Center</Typography>
+    <Typography color="text.secondary">Send an announcement to everyone, teachers, or students.</Typography>
+    {sent && <Alert severity="success" onClose={() => setSent(null)}>“{sent.title}” was sent to {sent.target === 'all' ? 'everyone' : sent.target}.</Alert>}
+    <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 } }}><AnnouncementComposer onCreated={setSent} /></Paper>
+  </Stack>;
 }

@@ -33,6 +33,7 @@ import VpnKeyOutlined from '@mui/icons-material/VpnKeyOutlined';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { clearSession, getCurrentUser } from '../../api/client';
 import { NAV } from '../../navigation';
+import NotificationPanel from '../common/NotificationPanel';
 
 const DRAWER_WIDTH = 250;
 
@@ -148,6 +149,7 @@ export default function DashboardLayout() {
             </Typography>
           </Stack>
           <Stack direction="row" spacing={{ xs: 1, sm: 1.5 }} alignItems="center" sx={{ minWidth: 0 }}>
+            <NotificationPanel />
             <Box sx={{ textAlign: 'right', minWidth: 0 }}>
               <Typography variant="body2" fontWeight={700} noWrap sx={{ maxWidth: { xs: 110, sm: 220 } }}>{displayName}</Typography>
               <Typography variant="caption" fontWeight={800} sx={{ color: roleColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>
