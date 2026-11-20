@@ -6,30 +6,41 @@
  */
 import { USE_MOCK, mock, request } from './client';
 import { mockUsers, mockLogin } from '../mocks/users';
+import { mockInvites } from '../mocks/invites';
+
+// Mock mode: same rule as AuthController.FindInvite, an unused invite with that exact ID.
+const findMockInvite = (idNumber) =>
+  mockInvites.find((invite) => invite.idNumber === String(idNumber).trim() && !invite.isUsed);
 
 export const login = (email, password) =>
   USE_MOCK ? mock(mockLogin(email.trim().toLowerCase())) : request('/auth/login', { method: 'POST', body: { email, password } });
 
 export const verifyId = (idNumber) =>
-  USE_MOCK ? mock({ valid: true, role: idNumber.trim().toUpperCase().startsWith('T') ? 'Teacher' : 'Student' }) : request('/auth/verify-id', { method: 'POST', body: { idNumber } });
+  USE_MOCK
+    ? mock({ valid: Boolean(findMockInvite(idNumber)), role: findMockInvite(idNumber)?.role ?? null })
+    : request('/auth/verify-id', { method: 'POST', body: { idNumber } });
 
 export const register = (data) => {
   if (!USE_MOCK) return request('/auth/register', { method: 'POST', body: data });
 
   const normalizedEmail = data.email.trim().toLowerCase();
-  const role = data.idNumber.trim().toUpperCase().startsWith('T') ? 'Teacher' : 'Student';
-  const existingUser = mockUsers.find((user) => user.email.toLowerCase() === normalizedEmail);
+  const invite = findMockInvite(data.idNumber);
+  if (!invite) return Promise.reject(new Error('This ID is not valid or has already been used.'));
+  if (mockUsers.some((user) => user.email.toLowerCase() === normalizedEmail))
+    return Promise.reject(new Error('This email is already registered.'));
+
+  const { password: _password, ...profile } = data;
   const user = {
     ...mockUsers[2],
-    ...data,
-    ...(existingUser ? { id: existingUser.id } : { id: Math.max(...mockUsers.map((item) => item.id)) + 1 }),
+    ...profile,
+    id: Math.max(...mockUsers.map((item) => item.id)) + 1,
     email: normalizedEmail,
-    role,
+    role: invite.role,
     status: 'active',
   };
-
-  if (existingUser) Object.assign(existingUser, user);
-  else mockUsers.push(user);
+  mockUsers.push(user);
+  invite.isUsed = true;
+  invite.usedByEmail = normalizedEmail;
 
   return mock({ token: 'mock-token', user });
 };

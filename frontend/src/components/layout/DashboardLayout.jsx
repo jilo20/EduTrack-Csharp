@@ -104,7 +104,7 @@ export default function DashboardLayout() {
               }}
             >
               <ListItemIcon sx={{ minWidth: 42, color: 'inherit' }}>{NAV_ICONS[item.label]}</ListItemIcon>
-              <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: selected ? 700 : 500 }} />
+              <ListItemText primary={item.label} slotProps={{ primary: { fontSize: '0.875rem', fontWeight: selected ? 700 : 500 } }} />
             </ListItemButton>
           );
         })}
@@ -116,7 +116,7 @@ export default function DashboardLayout() {
           sx={{ borderRadius: 2, color: 'error.main', '&:hover': { bgcolor: 'action.hover' } }}
         >
           <ListItemIcon sx={{ minWidth: 42, color: 'inherit' }}><LogoutRounded /></ListItemIcon>
-          <ListItemText primary="Log out" primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 600 }} />
+          <ListItemText primary="Log out" slotProps={{ primary: { fontSize: '0.875rem', fontWeight: 600 } }} />
         </ListItemButton>
       </List>
     </Box>
@@ -138,7 +138,7 @@ export default function DashboardLayout() {
         }}
       >
         <Toolbar sx={{ minHeight: { xs: 64, sm: 72 }, justifyContent: 'space-between', gap: 2 }}>
-          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 0 }}>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', minWidth: 0 }}>
             {!isDesktop && (
               <IconButton aria-label="Open navigation menu" onClick={() => setMobileOpen(true)} edge="start">
                 <MenuRounded />
@@ -148,7 +148,7 @@ export default function DashboardLayout() {
               EduTrack<Box component="span" sx={{ color: 'secondary.main' }}>.</Box>
             </Typography>
           </Stack>
-          <Stack direction="row" spacing={{ xs: 1, sm: 1.5 }} alignItems="center" sx={{ minWidth: 0 }}>
+          <Stack direction="row" spacing={{ xs: 1, sm: 1.5 }} sx={{ alignItems: 'center', minWidth: 0 }}>
             <NotificationPanel />
             <Box sx={{ textAlign: 'right', minWidth: 0 }}>
               <Typography variant="body2" fontWeight={700} noWrap sx={{ maxWidth: { xs: 110, sm: 220 } }}>{displayName}</Typography>

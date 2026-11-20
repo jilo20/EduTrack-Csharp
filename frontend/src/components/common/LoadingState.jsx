@@ -21,7 +21,7 @@ export default function LoadingState({ message = 'Loading...' }) {
       aria-live="polite"
       sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 160, width: '100%' }}
     >
-      <Stack direction="row" spacing={1.5} alignItems="center">
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
         <CircularProgress size={24} aria-label="Loading" />
         {message ? <Typography color="text.secondary">{message}</Typography> : null}
       </Stack>

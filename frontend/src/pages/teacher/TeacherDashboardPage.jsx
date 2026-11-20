@@ -34,7 +34,7 @@ function MetricCard({ label, value, icon, color }) {
   return (
     <Card elevation={0} sx={{ height: '100%', border: 1, borderColor: 'divider', borderRadius: 3 }}>
       <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
           <Box sx={{ p: 1.4, display: 'flex', borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>{icon}</Box>
           <Box>
             <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</Typography>
@@ -61,7 +61,7 @@ function RateRow({ label, value, color }) {
   const rate = percentageOrNull(value);
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.7 }}>
+      <Stack direction="row" sx={{ justifyContent: 'space-between', mb: 0.7 }}>
         <Typography variant="body2" color="text.secondary">{label}</Typography>
         <Typography variant="body2" fontWeight={700}>{rate === null ? '—' : `${rate}%`}</Typography>
       </Stack>
@@ -135,14 +135,13 @@ export default function TeacherDashboardPage() {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'flex-end' }} spacing={2} sx={{ mb: 3.5 }}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: { xs: 'flex-start', sm: 'flex-end' }, justifyContent: 'space-between', mb: 3.5 }}>
         <Box>
           <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.7px' }}>Instructor Insights</Typography>
           <Typography variant="body2" color="primary.main" fontWeight={700} sx={{ mt: 0.5 }}>{teacherGreeting(user)}</Typography>
           <Typography color="text.secondary" sx={{ mt: 0.5 }}>Class performance and student engagement at a glance.</Typography>
         </Box>
         <Button component={RouterLink} to="/dashboard/attendance" startIcon={<EventAvailableOutlined />} sx={{ borderRadius: 2, fontWeight: 500
-      
          }}>
           Manage Attendance
         </Button>
@@ -199,7 +198,7 @@ export default function TeacherDashboardPage() {
               <Stack spacing={2.5}>
                 {classes.map((item) => (
                   <Box key={item.classId ?? item.name} sx={{ p: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="baseline" spacing={1} sx={{ mb: 1.8 }}>
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline', justifyContent: 'space-between', mb: 1.8 }}>
                       <Typography fontWeight={800} sx={{ overflowWrap: 'anywhere' }}>{item.name || 'Class'}</Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>Average {percentageOrNull(item.average) === null ? '—' : `${percentageOrNull(item.average)}%`}</Typography>
                     </Stack>

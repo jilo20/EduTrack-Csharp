@@ -143,7 +143,7 @@ export default function AuditLogsPage() {
 
   return (
     <Box>
-      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 3.5 }}>
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 3.5 }}>
         <Box sx={{ p: 1.2, display: 'flex', borderRadius: 2, bgcolor: 'primary.light', color: 'primary.main' }}>
           <HistoryOutlined />
         </Box>
@@ -160,16 +160,14 @@ export default function AuditLogsPage() {
       )}
 
       <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2.5 }, mb: 2.5, border: 1, borderColor: 'divider', borderRadius: 3 }}>
-        <Grid container spacing={1.5} alignItems="center">
+        <Grid container spacing={1.5} sx={{ alignItems: 'center' }}>
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               placeholder="Search actions, people, roles, or details..."
               value={search}
               onChange={(event) => updateSearch(event.target.value)}
               disabled={loading || Boolean(loadError)}
-              InputProps={{ startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> }}
-              inputProps={{ 'aria-label': 'Search audit logs' }}
-            />
+              slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> }, htmlInput: { 'aria-label': 'Search audit logs' } }} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <FormControl fullWidth size="small" disabled={loading || Boolean(loadError)}>

@@ -183,7 +183,7 @@ export default function EnrollmentRoster({ open = false, selectedClass = null, o
   return (
     <Dialog open={open} onClose={submitting ? undefined : onClose} fullWidth maxWidth="md" scroll="paper">
       <DialogTitle sx={{ pb: 1.5 }}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ justifyContent: 'space-between' }}>
           <Box>
             <Typography variant="h6" component="div" fontWeight={800}>Class Roster</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>
@@ -208,7 +208,7 @@ export default function EnrollmentRoster({ open = false, selectedClass = null, o
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>
               <Paper elevation={0} sx={{ height: '100%', border: 1, borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden' }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1} sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', p: 2, borderBottom: 1, borderColor: 'divider' }}>
                   <Box>
                     <Typography variant="subtitle1" fontWeight={800}>Enrolled Students</Typography>
                     <Typography variant="caption" color="text.secondary">Current roster for this class</Typography>
@@ -246,7 +246,7 @@ export default function EnrollmentRoster({ open = false, selectedClass = null, o
                     </List>
                   ) : !rosterError ? (
                     <Box sx={{ minHeight: 220, display: 'grid', placeItems: 'center', px: 2 }}>
-                      <Stack alignItems="center" spacing={1}>
+                      <Stack spacing={1} sx={{ alignItems: 'center' }}>
                         <PeopleAltOutlined sx={{ fontSize: 42, color: 'text.disabled' }} />
                         <Typography variant="body2" color="text.secondary" fontWeight={600}>No students enrolled yet.</Typography>
                       </Stack>
@@ -272,9 +272,8 @@ export default function EnrollmentRoster({ open = false, selectedClass = null, o
                     placeholder="Search by name, email, or student ID…"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    InputProps={{ startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> }}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: 'background.paper' } }}
-                  />
+                    slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> } }} />
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5, mb: 0.5 }}>
                     <Typography variant="caption" color="text.secondary">Available students</Typography>
                     <Chip size="small" label={`${selectedStudents.length} selected`} color={selectedStudents.length ? 'primary' : 'default'} variant="outlined" />
@@ -291,7 +290,7 @@ export default function EnrollmentRoster({ open = false, selectedClass = null, o
                         return (
                           <Box key={student.id}>
                             <ListItemButton onClick={() => toggleStudent(student.id)} disabled={submitting} sx={{ px: 1.5, py: 1 }}>
-                              <Checkbox checked={checked} tabIndex={-1} disableRipple inputProps={{ 'aria-label': `Select ${studentName(student)}` }} />
+                              <Checkbox checked={checked} tabIndex={-1} disableRipple slotProps={{ input: { 'aria-label': `Select ${studentName(student)}` } }} />
                               <ListItemAvatar>
                                 <Avatar sx={{ width: 34, height: 34, bgcolor: 'action.selected', color: 'primary.main', fontSize: '0.75rem', fontWeight: 800 }}>
                                   {studentName(student).split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase()}

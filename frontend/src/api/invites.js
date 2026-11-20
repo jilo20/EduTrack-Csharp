@@ -10,5 +10,22 @@ import { mockInvites } from '../mocks/invites';
 export const getInvites = () =>
   USE_MOCK ? mock(mockInvites) : request('/registeredid');
 
+// Mock mode keeps the new invite in the shared list so Register can verify it.
+function createMockInvite(roleId) {
+  let idNumber;
+  do idNumber = `${new Date().getFullYear()}${Math.floor(100000 + Math.random() * 900000)}`;
+  while (mockInvites.some((invite) => invite.idNumber === idNumber));
+  const invite = {
+    id: Math.max(0, ...mockInvites.map((item) => item.id)) + 1,
+    idNumber,
+    role: roleId === 2 ? 'Teacher' : 'Student',
+    isUsed: false,
+    usedByEmail: null,
+    createdAt: new Date().toISOString(),
+  };
+  mockInvites.unshift(invite);
+  return mock(invite);
+}
+
 export const createInvite = (roleId) =>
-  USE_MOCK ? mock({ id: Date.now(), idNumber: `2026${Math.floor(100000 + Math.random() * 900000)}`, role: roleId === 2 ? 'Teacher' : 'Student', isUsed: false, createdAt: new Date().toISOString() }) : request('/registeredid', { method: 'POST', body: { roleId } });
+  USE_MOCK ? createMockInvite(roleId) : request('/registeredid', { method: 'POST', body: { roleId } });

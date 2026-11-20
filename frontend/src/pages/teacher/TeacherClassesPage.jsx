@@ -143,12 +143,12 @@ export default function TeacherClassesPage() {
       return;
     }
     if (form.passingGrade === '') {
-      setFormError('Enter a passing grade between 0 and 100.');
+      setFormError('Enter a passing grade between 1 and 100.');
       return;
     }
     const passingGrade = Number(form.passingGrade);
-    if (!Number.isFinite(passingGrade) || passingGrade < 0 || passingGrade > 100) {
-      setFormError('Passing grade must be between 0 and 100.');
+    if (!Number.isFinite(passingGrade) || passingGrade < 1 || passingGrade > 100) {
+      setFormError('Passing grade must be between 1 and 100.');
       return;
     }
 
@@ -183,7 +183,7 @@ export default function TeacherClassesPage() {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'stretch', sm: 'center' }} spacing={2} sx={{ mb: 3.5 }}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', mb: 3.5 }}>
         <Box>
           <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.6px' }}>My Classes</Typography>
           <Typography color="text.secondary" sx={{ mt: 0.5 }}>Manage your assigned classroom sections.</Typography>
@@ -200,15 +200,14 @@ export default function TeacherClassesPage() {
       )}
 
       <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: 2.5, border: 1, borderColor: 'divider', borderRadius: 3 }}>
-        <Stack direction={{ xs: 'column', lg: 'row' }} spacing={1.5} alignItems={{ lg: 'center' }}>
+        <Stack direction={{ xs: 'column', lg: 'row' }} spacing={1.5} sx={{ alignItems: { lg: 'center' } }}>
           <TextField
             size="small"
             placeholder="Search by name or section…"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             sx={{ flex: 1, minWidth: { lg: 260 }, '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: 'background.default' } }}
-            InputProps={{ startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> }}
-          />
+            slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchOutlined color="action" /></InputAdornment> } }} />
           <FormControl size="small" sx={{ minWidth: 150 }}>
             <InputLabel id="class-status-filter-label">Status</InputLabel>
             <Select
@@ -256,7 +255,7 @@ export default function TeacherClassesPage() {
               return (
                 <TableRow key={item.id} hover>
                   <TableCell>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                       <Box sx={{ width: 38, height: 38, display: 'grid', placeItems: 'center', borderRadius: 2, bgcolor: isCompleted ? 'action.hover' : 'primary.light', color: isCompleted ? 'text.secondary' : 'primary.dark' }}>
                         <ClassOutlined fontSize="small" />
                       </Box>
@@ -278,7 +277,7 @@ export default function TeacherClassesPage() {
                     />
                   </TableCell>
                   <TableCell align="center">
-                    <Stack direction="row" spacing={0.75} justifyContent="center" alignItems="center">
+                    <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', justifyContent: 'center' }}>
                       <PeopleAltOutlined fontSize="small" color="action" />
                       <Typography fontWeight={800}>{item.studentCount ?? 0}</Typography>
                     </Stack>
@@ -371,9 +370,8 @@ export default function TeacherClassesPage() {
                           ...current,
                           weights: { ...current.weights, [category]: event.target.value === '' ? '' : Number(event.target.value) },
                         }))}
-                        inputProps={{ min: 0, max: 100 }}
                         disabled={isSubmitting}
-                      />
+                        slotProps={{ htmlInput: { min: 1, max: 100 } }} />
                     </Grid>
                   ))}
                 </Grid>
@@ -387,9 +385,8 @@ export default function TeacherClassesPage() {
                 type="number"
                 value={form.passingGrade}
                 onChange={(event) => setForm((current) => ({ ...current, passingGrade: event.target.value === '' ? '' : Number(event.target.value) }))}
-                inputProps={{ min: 0, max: 100 }}
                 disabled={isSubmitting}
-              />
+                slotProps={{ htmlInput: { min: 1, max: 100 } }} />
             </Stack>
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
