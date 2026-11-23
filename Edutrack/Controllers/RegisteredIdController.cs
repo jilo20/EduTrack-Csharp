@@ -1,66 +1,27 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography;
-using Edutrack.Data;
-using Edutrack.Dtos;
-using Edutrack.Models;
+// OWNER: Lopez, Mary Vincent — WBS 5.1
+// ARCHITECTURE: Controller -> Service -> Repository. This controller only calls the service;
+//               the rules are in Services/, the database work in Repositories/.
+
+using System.ComponentModel.DataAnnotations;
 using Edutrack.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MySqlConnector;
 
-namespace Edutrack.Controllers;
-
-// OWNER: Lopez, Mary Vincent — WBS 5.1
-[ApiController]
-[Authorize(Roles = "Admin")]
-[Route("/api/registeredid")]
-public class RegisteredIdController(EduTrackContext db, AuditLogService audit) : ControllerBase
+namespace Edutrack.Controllers
 {
-    public record GenerateInviteDto([Range(2, 3)] int RoleId);
-
-    [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await db.RegisteredIds
-        .OrderByDescending(r => r.CreatedAt)
-        .Select(r => new RegisteredIdDto(r.Id, r.IdNumber, r.Role!.Name, r.IsUsed, r.CreatedAt))
-        .ToListAsync());
-
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetId(int id)
+    [Authorize(Roles = "Admin")]
+    [Route("/api/registeredid")]
+    public class RegisteredIdController(InviteService invites) : ApiControllerBase
     {
-        var invite = await db.RegisteredIds.Where(r => r.Id == id)
-            .Select(r => new RegisteredIdDto(r.Id, r.IdNumber, r.Role!.Name, r.IsUsed, r.CreatedAt))
-            .FirstOrDefaultAsync();
-        return invite is null ? NotFound(new { error = "Invite not found." }) : Ok(invite);
-    }
+        public record GenerateInviteDto([Range(2, 3)] int RoleId);
 
-    [HttpPost]
-    public async Task<IActionResult> Create(GenerateInviteDto dto)
-    {
-        var role = await db.Roles.FindAsync(dto.RoleId);
-        if (role is null || (role.Name != "Student" && role.Name != "Teacher"))
-            return BadRequest(new { error = "Select a Student or Teacher role." });
+        [HttpGet]
+        public async Task<IActionResult> GetAll() => Respond(await invites.ListAsync());
 
-        // Retry if the database's unique index detects a concurrent collision.
-        for (var attempt = 0; attempt < 10; attempt++)
-        {
-            var number = $"{DateTime.UtcNow.Year}{RandomNumberGenerator.GetInt32(100000, 1000000)}";
-            if (await db.RegisteredIds.AnyAsync(r => r.IdNumber == number) ||
-                await db.Users.AnyAsync(u => u.IdNumber == number)) continue;
-            var invite = new RegisteredId { IdNumber = number, RoleId = role.Id };
-            db.RegisteredIds.Add(invite);
-            await audit.Log("INVITE_GENERATED", User, $"Generated {role.Name} invite {number}");
-            try
-            {
-                await db.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetId), new { id = invite.Id },
-                    new RegisteredIdDto(invite.Id, number, role.Name, false, invite.CreatedAt));
-            }
-            catch (DbUpdateException ex) when (ex.InnerException is MySqlException { Number: 1062 })
-            {
-                db.ChangeTracker.Clear();
-            }
-        }
-        return Conflict(new { error = "Could not generate a unique invite. Please try again." });
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetId(int id) => Respond(await invites.GetAsync(id));
+
+        [HttpPost]
+        public async Task<IActionResult> Create(GenerateInviteDto dto) => Respond(await invites.CreateAsync(dto.RoleId, Caller));
     }
 }

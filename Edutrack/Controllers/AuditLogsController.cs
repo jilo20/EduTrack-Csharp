@@ -7,31 +7,23 @@
 // ENDPOINT TO BUILD (Admin only):
 //   GET /api/auditlogs  -> AuditLogDto[] (newest first)
 //
+//
+// ARCHITECTURE: Controller -> Service -> Repository. This controller only calls the service;
+//               the rules are in Services/, the database work in Repositories/.
 // ============================================================================
 
-using Edutrack.Data;
-using Edutrack.Dtos;
-using Edutrack.Models;
 using Edutrack.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Edutrack.Controllers
 {
-    [ApiController]
     [Route("/api/auditlogs")]
     [Authorize(Roles = "Admin")]
-    public class AuditLogsController(EduTrackContext db) : ControllerBase
+    public class AuditLogsController(AuditLogService audit) : ApiControllerBase
     {
-        // 13.2: newest first. Capped at the latest 1000 rows; the page filters and pages them.
+        // 13.2: newest first
         [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var logs = await db.AuditLogs.OrderByDescending(a => a.Timestamp).ThenByDescending(a => a.Id).Take(1000)
-                .Select(a => new AuditLogDto(a.Id, a.Timestamp, a.Action, a.ActorName, a.ActorRole, a.Details))
-                .ToListAsync();
-            return Ok(logs);
-        }
+        public async Task<IActionResult> GetAll() => Respond(await audit.ListAsync());
     }
 }
