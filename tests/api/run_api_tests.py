@@ -105,10 +105,23 @@ def normalize(v):
     return v
 
 
+def hide_secrets(v):
+    if isinstance(v, dict):
+        return {k: ("<password>" if "password" in k.lower() else hide_secrets(x)) for k, x in v.items()}
+    if isinstance(v, list):
+        return [hide_secrets(x) for x in v]
+    return v
+
+
 class Runner:
     def __init__(self):
         self.results = []
         self.ctx = {}
+        self.who = {}  # token -> account label, for the "actor" column
+
+    def name(self, token, label):
+        self.who[token] = label
+        return token
 
     def case(self, cid, module, title, expected, method, path, body=None, token=None, check=None):
         status, data = call(method, path, body, token)
@@ -120,6 +133,8 @@ class Runner:
             except Exception as e:  # a failed assertion inside check
                 ok, note = False, f"check failed: {e}"
         self.results.append({"id": cid, "module": module, "title": title, "method": method, "path": path,
+                             "actor": self.who.get(token, "Not logged in") if token else "Not logged in",
+                             "request": normalize(hide_secrets(body)) if body is not None else None,
                              "expected": expected, "actual": status, "pass": ok, "note": note,
                              "body": normalize(data)})
         mark = "PASS" if ok else "FAIL"
@@ -142,7 +157,7 @@ def run_cases(r: Runner):
     # ---------- 4.x Auth ----------
     d = r.case("AUTH-01", "Auth", "Admin logs in with the right password", 200, "POST", "/auth/login", {"email": A, "password": admin["Password"]},
                check=lambda b: expect(b["user"]["role"] == "Admin", "role is not Admin"))
-    at = d["token"]
+    at = r.name(d["token"], "Admin")
     r.case("AUTH-02", "Auth", "Wrong password is refused and shows tries left", 401, "POST", "/auth/login", {"email": A, "password": "wrong-pass-1"},
            check=lambda b: expect("4 tries left" in b["error"], b))
     r.case("AUTH-03", "Auth", "Unknown email is refused", 401, "POST", "/auth/login", {"email": "nobody@edutrack.com", "password": "whatever123"})
@@ -174,7 +189,7 @@ def run_cases(r: Runner):
     b = r.case("REG-01", "Register", "Teacher registers with a Teacher invite", 200, "POST", "/auth/register",
                {"idNumber": t_inv_id, "firstName": "Maria", "lastName": "Santos", "email": "maria@test.com", "password": pw},
                check=lambda b: expect(b["user"]["role"] == "Teacher", b))
-    tt = b["token"]
+    tt = r.name(b["token"], "Teacher (Maria Santos)")
     teacher_id = b["user"]["id"]
     r.case("REG-02", "Register", "A used invite cannot register again", 400, "POST", "/auth/register",
            {"idNumber": t_inv_id, "firstName": "X", "lastName": "Y", "email": "other@test.com", "password": pw})
@@ -187,10 +202,10 @@ def run_cases(r: Runner):
         b = r.case(f"REG-0{5 + i}", "Register", f"Student {fn} registers with a Student invite", 200, "POST", "/auth/register",
                    {"idNumber": ids[i], "firstName": fn, "lastName": ln, "email": f"{fn.lower()}@test.com", "password": pw},
                    check=lambda b: expect(b["user"]["role"] == "Student", b))
-        students.append({"id": b["user"]["id"], "token": b["token"], "idNumber": ids[i]})
+        students.append({"id": b["user"]["id"], "token": r.name(b["token"], f"Student ({fn} {ln})"), "idNumber": ids[i]})
     b = r.case("REG-08", "Register", "Second teacher registers", 200, "POST", "/auth/register",
                {"idNumber": t2, "firstName": "Jose", "lastName": "Ramos", "email": "jose@test.com", "password": pw})
-    t2t, teacher2_id = b["token"], b["user"]["id"]
+    t2t, teacher2_id = r.name(b["token"], "Teacher 2 (Jose Ramos)"), b["user"]["id"]
     s1, s2, s3 = students
     r.case("AUTH-09", "Auth", "Registered teacher can log in", 200, "POST", "/auth/login", {"email": "maria@test.com", "password": pw})
 
