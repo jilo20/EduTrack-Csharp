@@ -7,6 +7,7 @@
 // ENDPOINTS TO BUILD (Teacher / Admin):
 //   GET  /api/classes?teacherId=   -> ClassDto[]  (teacher: own classes; admin: all classes)
 //   POST /api/classes              body: CreateClassDto -> ClassDto
+//   PUT  /api/classes/{id}         body: UpdateClassDto -> ClassDto
 //   GET  /api/classes/{id}/roster  -> RosterDto (students + their scores)
 //   POST /api/classes/{id}/enroll  body: EnrollStudentsDto
 // RULES:
@@ -37,6 +38,10 @@ namespace Edutrack.Controllers
         // 7.1 Create Class
         [HttpPost]
         public async Task<IActionResult> Create(CreateClassDto dto) => Respond(await classes.CreateAsync(dto, Caller));
+
+        // 7.1 Update Class
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, UpdateClassDto dto) => Respond(await classes.UpdateAsync(id, dto, Caller));
 
         // 7.3 Roster
         [HttpGet("{id:int}/roster")]

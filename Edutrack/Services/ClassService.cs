@@ -1,7 +1,7 @@
 // ============================================================================
 // FILE:    Services/ClassService.cs
 // OWNER:   Bazar, Angelo (7.1 - 7.3), Lopez, Mary Vincent (7.4 weights)
-// WBS:     7.1 Create Class, 7.2 My Classes / All Classes, 7.3 Enrollment & Roster, 7.4 Grading Weights
+// WBS:     7.1 Create / Update Class, 7.2 My Classes / All Classes, 7.3 Enrollment & Roster, 7.4 Grading Weights
 // PURPOSE: All class rules: who may see / create / manage a class, weight validation, enrollment.
 // ============================================================================
 
@@ -75,6 +75,43 @@ namespace Edutrack.Services
             await audit.Log("CLASS_CREATED", caller, $"Created class {section.CourseProgram} ({section.CodeName}) for {teacher.FirstName} {teacher.LastName}");
             await uow.SaveChangesAsync();
             return ServiceResult<ClassDto>.Created(ClassDto.From(section, 0), $"/api/classes/{section.Id}/roster");
+        }
+
+        // 7.1 Update Class: name, section code, description, schedule, passing grade.
+        // Only the class's teacher or an admin; a completed class is final (its grades were already posted).
+        public async Task<ServiceResult<ClassDto>> UpdateAsync(int id, UpdateClassDto dto, Caller caller)
+        {
+            var section = await classes.GetWithTeacherAsync(id);
+            if (section is null) return Fail.NotFound("Class not found.");
+            if (!caller.CanManage(section)) return Fail.Forbidden("This is not your class.");
+            if (section.Status == "completed") return Fail.BadRequest("This class has ended. Its details are final.");
+
+            var changes = new List<string>();
+            void Track(string field, string? before, string? after)
+            {
+                if (before != after) changes.Add($"{field}: {before ?? "-"} -> {after ?? "-"}");
+            }
+            var name = dto.Name.Trim();
+            var code = dto.SectionCode.Trim();
+            var description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
+            var schedule = string.IsNullOrWhiteSpace(dto.Schedule) ? "TBA" : dto.Schedule.Trim();
+            Track("name", section.CourseProgram, name);
+            Track("section", section.CodeName, code);
+            Track("description", section.Description, description);
+            Track("schedule", section.Schedule, schedule);
+            Track("passing grade", section.PassingGrade.ToString(), dto.PassingGrade.ToString());
+
+            section.CourseProgram = name;
+            section.CodeName = code;
+            section.Description = description;
+            section.Schedule = schedule;
+            section.PassingGrade = dto.PassingGrade;
+            if (changes.Count > 0)
+            {
+                await audit.Log("CLASS_UPDATED", caller, $"Updated class {section.CourseProgram} ({section.CodeName}): {string.Join("; ", changes)}");
+                await uow.SaveChangesAsync();
+            }
+            return ClassDto.From(section, await classes.CountStudentsAsync(id));
         }
 
         // 7.3 Roster: the class's assessments plus each student and their scores.

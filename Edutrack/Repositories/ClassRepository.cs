@@ -12,6 +12,8 @@ namespace Edutrack.Repositories
     public interface IClassRepository
     {
         Task<Section?> GetByIdAsync(int id);
+        Task<Section?> GetWithTeacherAsync(int id);
+        Task<int> CountStudentsAsync(int sectionId);
         Task<List<(Section Section, int StudentCount)>> ListWithStudentCountsAsync(int? teacherId);
         Task<List<Section>> ListAllAsync();
         Task<List<Section>> ListByTeacherAsync(int teacherId);
@@ -32,6 +34,11 @@ namespace Edutrack.Repositories
     public class ClassRepository(EduTrackContext db) : IClassRepository
     {
         public async Task<Section?> GetByIdAsync(int id) => await db.Sections.FindAsync(id);
+
+        public Task<Section?> GetWithTeacherAsync(int id) =>
+            db.Sections.Include(s => s.Teacher).FirstOrDefaultAsync(s => s.Id == id);
+
+        public Task<int> CountStudentsAsync(int sectionId) => db.Enrollments.CountAsync(e => e.SectionId == sectionId);
 
         // Active classes first, newest first, each with its number of enrolled students.
         public async Task<List<(Section Section, int StudentCount)>> ListWithStudentCountsAsync(int? teacherId)

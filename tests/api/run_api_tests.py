@@ -260,6 +260,21 @@ def run_cases(r: Runner):
     r.case("CLS-19", "Classes", "Teacher views the roster", 200, "GET", f"/classes/{c1}/roster", token=tt, check=lambda b: expect(len(b["students"]) == 3, b))
     r.case("CLS-20", "Classes", "Teacher cannot view another teacher's roster", 403, "GET", f"/classes/{c2}/roster", token=tt)
     r.case("CLS-21", "Classes", "Class list shows the student count", 200, "GET", "/classes", token=tt, check=lambda b: expect(b[0]["studentCount"] == 3, b))
+    upd = {"name": "BSIT 3 - Web Development 2", "sectionCode": "IT301-A", "description": "React, REST APIs and testing",
+           "schedule": "TTh 10:00 - 11:30", "passingGrade": 70}
+    r.case("CLS-22", "Classes", "Teacher updates their class's details", 200, "PUT", f"/classes/{c1}", upd, tt,
+           check=lambda b: expect(b["name"] == upd["name"] and b["schedule"] == upd["schedule"] and b["passingGrade"] == 70
+                                  and b["studentCount"] == 3 and sum(b["weights"].values()) == 100, b))
+    r.case("CLS-23", "Classes", "The update is saved (class list shows it)", 200, "GET", "/classes", token=tt,
+           check=lambda b: expect(b[0]["name"] == upd["name"] and b[0]["description"] == upd["description"], b))
+    r.case("CLS-24", "Classes", "Update with passing grade 0 is rejected", 400, "PUT", f"/classes/{c1}", {**upd, "passingGrade": 0}, tt)
+    r.case("CLS-25", "Classes", "Update with an empty name is rejected", 400, "PUT", f"/classes/{c1}", {**upd, "name": ""}, tt)
+    r.case("CLS-26", "Classes", "Teacher cannot update another teacher's class", 403, "PUT", f"/classes/{c2}", upd, tt)
+    r.case("CLS-27", "Classes", "Updating an unknown class is not found", 404, "PUT", "/classes/9999", upd, tt)
+    r.case("CLS-28", "Classes", "Student cannot update a class", 403, "PUT", f"/classes/{c1}", upd, s1["token"])
+    r.case("CLS-29", "Classes", "Admin updates any teacher's class", 200, "PUT", f"/classes/{c2}",
+           {"name": "BSIT 2 - Programming 2", "sectionCode": "IT201-B", "schedule": "MWF 13:00", "passingGrade": 75}, at,
+           check=lambda b: expect(b["sectionCode"] == "IT201-B" and b["teacherId"] == teacher2_id, b))
 
     # ---------- 7.4 Weights ----------
     r.case("WGT-01", "Weights", "Teacher updates the class weights", 200, "PUT", f"/classes/{c1}/weights", {"Quiz": 30, "Project": 30, "Module Exam": 40}, tt)
@@ -369,7 +384,7 @@ def run_cases(r: Runner):
 
     # ---------- 13.x Audit logs ----------
     r.case("AUD-01", "Audit Logs", "Admin reads the audit trail", 200, "GET", "/auditlogs", token=at,
-           check=lambda b: expect({"PASSWORD_RESET", "GRADE_CHANGED", "CLASS_CREATED"} <= {x["action"] for x in b}, [x["action"] for x in b]))
+           check=lambda b: expect({"PASSWORD_RESET", "GRADE_CHANGED", "CLASS_CREATED", "CLASS_UPDATED"} <= {x["action"] for x in b}, [x["action"] for x in b]))
     r.case("AUD-02", "Audit Logs", "Teacher cannot read the audit trail", 403, "GET", "/auditlogs", token=tt)
 
     # ---------- 8.6 End semester ----------
@@ -380,6 +395,7 @@ def run_cases(r: Runner):
     r.case("END-04", "End Semester", "No new assessments after the class ended", 400, "POST", "/assessments", {"sectionId": c1, "title": "Late", "type": "Quiz", "perfectScore": 10}, tt)
     r.case("END-05", "End Semester", "Grades are final after the class ended", 400, "POST", f"/assessments/{q1}/scores", {"scores": [{"studentId": s1["id"], "score": 20}]}, tt)
     r.case("END-06", "End Semester", "Weights are final after the class ended", 400, "PUT", f"/classes/{c1}/weights", {"Quiz": 50, "Project": 50}, tt)
+    r.case("END-08", "End Semester", "Class details are final after the class ended", 400, "PUT", f"/classes/{c1}", upd, tt)
     r.case("END-07", "End Semester", "Students get their final grade", 200, "GET", "/notifications", token=s2["token"],
            check=lambda b: expect(any(n["title"] == "Final grade posted" for n in b), [n["title"] for n in b]))
 
