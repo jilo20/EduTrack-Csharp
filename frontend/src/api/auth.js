@@ -44,3 +44,21 @@ export const register = (data) => {
 
   return mock({ token: 'mock-token', user });
 };
+
+// 4.3 Forgot Password. Mock mode follows the same rules as the API: an account with this ID, and it must be active.
+const findMockAccount = (idNumber) => mockUsers.find((user) => user.idNumber === String(idNumber).trim());
+
+export const verifyResetId = (idNumber) => {
+  if (!USE_MOCK) return request('/auth/forgot-password/verify', { method: 'POST', body: { idNumber } });
+  const user = findMockAccount(idNumber);
+  if (!user) return mock({ valid: false, error: 'No account uses this ID.' });
+  if (user.status !== 'active') return mock({ valid: false, error: 'This account is inactive. Contact the admin.' });
+  return mock({ valid: true, firstName: user.firstName });
+};
+
+export const resetPassword = (idNumber, password) => {
+  if (!USE_MOCK) return request('/auth/forgot-password/reset', { method: 'POST', body: { idNumber, password } });
+  const user = findMockAccount(idNumber);
+  if (!user || user.status !== 'active') return Promise.reject(new Error('No active account uses this ID.'));
+  return mock({ ok: true });
+};

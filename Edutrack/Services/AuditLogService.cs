@@ -24,6 +24,12 @@ namespace Edutrack.Services
         {
             var id = actor.UserId();
             var user = await db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
+            Log(action, user, details);
+        }
+
+        // For actions with no logged-in caller (e.g. Forgot Password): the account itself is the actor.
+        public void Log(string action, User? user, string details)
+        {
             db.AuditLogs.Add(new AuditLog
             {
                 Action = action,

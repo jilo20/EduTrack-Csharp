@@ -12,6 +12,7 @@ import InviteCenterPage from './pages/admin/InviteCenterPage';
 import UserManagerPage from './pages/admin/UserManagerPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import AnnouncementsPage from './pages/common/AnnouncementsPage';
 import DashboardHomePage from './pages/common/DashboardHomePage';
 import AcademicPerformancePage from './pages/student/AcademicPerformancePage';
@@ -31,6 +32,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/dashboard" element={guard(<DashboardLayout />)}>
             <Route index element={<DashboardHomePage />} />
             {/* Admin */}
