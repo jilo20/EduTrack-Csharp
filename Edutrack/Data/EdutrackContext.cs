@@ -2,6 +2,7 @@
 using Edutrack.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Edutrack.Data
 {
@@ -18,6 +19,21 @@ namespace Edutrack.Data
         public DbSet<Announcement> Announcements => Set<Announcement>();
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
+        // Every DateTime is saved in UTC (DateTime.UtcNow). MySQL does not store the time zone, so values read
+        // back would have Kind = Unspecified and be sent to the browser without a "Z", which shows them 8 hours
+        // early in the Philippines. Marking them as UTC on read fixes every timestamp in the API.
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
+            configurationBuilder.Properties<DateTime?>().HaveConversion<NullableUtcDateTimeConverter>();
+        }
+
+        private class UtcDateTimeConverter() : ValueConverter<DateTime, DateTime>(
+            v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+        private class NullableUtcDateTimeConverter() : ValueConverter<DateTime?, DateTime?>(
+            v => v, v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
 
         protected override void OnModelCreating(ModelBuilder b)
         {
