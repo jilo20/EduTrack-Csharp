@@ -28,8 +28,7 @@ namespace Edutrack.Services
         IPasswordHasher<User> hasher,
         AuditLogService audit,
         NotificationService notifications,
-        PasswordResetMail resetMail,
-        ILogger<AuthService> logger)
+        PasswordResetMail resetMail)
     {
         private const int MaxAttempts = 5;
         private static readonly TimeSpan LockTime = TimeSpan.FromMinutes(15);
@@ -112,18 +111,6 @@ namespace Edutrack.Services
             users.Add(user);
             await uow.SaveChangesAsync();   // one save: the user and the used invite are stored together
             return BuildAuthResponse(user);
-        }
-
-        public async Task<ServiceResult<OkResultDto>> RequestPasswordResetAsync(RequestPasswordResetDto dto)
-        {
-            if (resetMail.Enabled)
-            {
-                var user = await users.GetByEmailAsync(dto.Email.Trim().ToLowerInvariant());
-                if (user?.Status == "active") await resetMail.SendAsync(user);
-                else logger.LogInformation("Password reset email skipped because no active account matched.");
-            }
-            else logger.LogInformation("Password reset email skipped because local Mailpit is disabled.");
-            return new OkResultDto(true);
         }
 
         // 4.3 Forgot Password, step 2: set the new password.

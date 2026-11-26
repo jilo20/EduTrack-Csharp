@@ -33,7 +33,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace Edutrack.Controllers
 {
     [Route("/api/auth")]
-    public class AuthController(AuthService auth) : ApiControllerBase
+    public class AuthController(AuthService auth, PasswordResetQueue resets) : ApiControllerBase
     {
         [HttpPost("login")]
         [AllowAnonymous]
@@ -50,7 +50,10 @@ namespace Edutrack.Controllers
         [HttpPost("forgot-password/request")]
         [AllowAnonymous]
         [EnableRateLimiting("password-reset")]
-        public async Task<IActionResult> RequestPasswordReset(RequestPasswordResetDto dto) => Respond(await auth.RequestPasswordResetAsync(dto));
+        public IActionResult RequestPasswordReset(RequestPasswordResetDto dto) =>
+            resets.TryEnqueue(dto.Email)
+                ? Ok(new OkResultDto(true))
+                : StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "Please try again shortly." });
 
         [HttpPost("forgot-password/reset")]
         [AllowAnonymous]

@@ -15,6 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddDataProtection();
 builder.Services.AddScoped<PasswordResetMail>();
+builder.Services.AddSingleton<PasswordResetQueue>();
+builder.Services.AddHostedService(services => services.GetRequiredService<PasswordResetQueue>());
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
