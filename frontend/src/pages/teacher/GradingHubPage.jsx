@@ -107,6 +107,8 @@ function GradingEditor({ section, roster }) {
           <TableBody>{students.map((s) => <TableRow key={s.id}><TableCell>{s.name}</TableCell><TableCell>{s.idNumber}</TableCell><TableCell>
             <TextField type="number" size="small" label={`Score for ${s.name}`} value={scores[s.id] ?? ''} disabled={completed || saving}
               error={scores[s.id] !== '' && scores[s.id] != null && (!Number.isFinite(Number(scores[s.id])) || Number(scores[s.id]) < 0 || Number(scores[s.id]) > assessment.perfectScore)}
+              helperText={scores[s.id] !== '' && scores[s.id] != null && (!Number.isFinite(Number(scores[s.id])) || Number(scores[s.id]) < 0 || Number(scores[s.id]) > assessment.perfectScore)
+                ? `Enter 0 to ${assessment.perfectScore}.` : undefined}
               slotProps={{ htmlInput: { min: 0, max: assessment.perfectScore, step: 'any' } }}
               onChange={(e) => setScores((rows) => ({ ...rows, [s.id]: e.target.value }))} />
           </TableCell></TableRow>)}</TableBody>

@@ -16,9 +16,8 @@
 //
 // ============================================================================
 
-using Edutrack.Data;
 using Edutrack.Models;
-using Microsoft.EntityFrameworkCore;
+using Edutrack.Repositories;
 
 namespace Edutrack.Services
 {
@@ -26,7 +25,7 @@ namespace Edutrack.Services
     public record StudentResult(User Student, double? Grade, double? GradePoint, double? AttendanceRate,
         List<(Assessment Assessment, Score? Score)> Scores, List<Attendance> Attendance);
 
-    public class GradeService(EduTrackContext db)
+    public class GradeService(IClassRepository classes, IAssessmentRepository assessments, IAttendanceRepository attendanceRecords)
     {
         // ---- Pure math (no database) ----
 
@@ -78,46 +77,24 @@ namespace Edutrack.Services
             return Math.Round(points / days.Count * 100, 2);
         }
 
-        // ---- With the database ----
+        // ---- With data from the repositories ----
 
         // Every enrolled student's grade, grade point, and attendance in one class.
         public async Task<List<StudentResult>> ClassResults(Section section)
         {
-            var students = await db.Enrollments.Where(e => e.SectionId == section.Id)
-                .Select(e => e.Student!).OrderBy(s => s.LastName).ThenBy(s => s.FirstName).ToListAsync();
-            var assessments = await db.Assessments.Where(a => a.SectionId == section.Id)
-                .Include(a => a.Scores).OrderBy(a => a.CreatedAt).ToListAsync();
-            var attendance = await db.Attendances.Where(a => a.SectionId == section.Id).ToListAsync();
+            var students = await classes.GetStudentsAsync(section.Id);
+            var classAssessments = await assessments.ListBySectionWithScoresAsync(section.Id);
+            var attendance = await attendanceRecords.ListBySectionAsync(section.Id);
 
             return students.Select(st =>
             {
-                var scores = assessments.Select(a => (Assessment: a, Score: a.Scores.FirstOrDefault(s => s.StudentId == st.Id))).ToList();
+                var scores = classAssessments.Select(a => (Assessment: a, Score: a.Scores.FirstOrDefault(s => s.StudentId == st.Id))).ToList();
                 var graded = scores.Where(x => x.Score is not null).Select(x => (x.Assessment.Type, x.Score!.Value, x.Assessment.PerfectScore));
                 var grade = ClassGrade(graded, section.Weights);
                 var days = attendance.Where(a => a.StudentId == st.Id).OrderBy(a => a.Date).ToList();
                 return new StudentResult(st, grade, grade is null ? null : ToGradePoint(grade.Value, section.PassingGrade),
                     AttendanceRate(days.Select(d => d.Status)), scores, days);
             }).ToList();
-        }
-
-        public async Task<double?> ComputeClassGrade(int studentId, int classId)
-        {
-            var section = await db.Sections.FindAsync(classId);
-            if (section is null) return null;
-            return (await ClassResults(section)).FirstOrDefault(r => r.Student.Id == studentId)?.Grade;
-        }
-
-        // GWA = average of the student's class grade points (classes with no grade yet are skipped).
-        public async Task<double?> ComputeGwa(int studentId)
-        {
-            var sections = await db.Enrollments.Where(e => e.StudentId == studentId).Select(e => e.Section!).ToListAsync();
-            var points = new List<double>();
-            foreach (var s in sections)
-            {
-                var r = (await ClassResults(s)).FirstOrDefault(x => x.Student.Id == studentId);
-                if (r?.GradePoint is double gp) points.Add(gp);
-            }
-            return points.Count == 0 ? null : Math.Round(points.Average(), 2);
         }
     }
 }

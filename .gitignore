@@ -56,3 +56,6 @@ secrets.json
 .cache/
 tmp/
 temp/
+
+# API test output (regenerate with python tests/api/run_api_tests.py)
+tests/api/results/

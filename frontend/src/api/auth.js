@@ -44,3 +44,13 @@ export const register = (data) => {
 
   return mock({ token: 'mock-token', user });
 };
+
+export const requestPasswordReset = (email) => {
+  if (USE_MOCK) return Promise.reject(new Error('Connect to the local API to send reset email.'));
+  return request('/auth/forgot-password/request', { method: 'POST', body: { email } });
+};
+
+export const resetPassword = (token, password) => {
+  if (USE_MOCK) return Promise.reject(new Error('Connect to the local API to reset your password.'));
+  return request('/auth/forgot-password/reset', { method: 'POST', body: { token, password } });
+};

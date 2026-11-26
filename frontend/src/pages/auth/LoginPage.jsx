@@ -187,6 +187,17 @@ export default function LoginPage() {
                   </InputAdornment>
                 ),
               } }} />
+            <Box sx={{ textAlign: 'right', mt: -1 }}>
+              <Link
+                component={RouterLink}
+                to="/forgot-password"
+                variant="body2"
+                underline="none"
+                sx={{ color: '#2563EB', fontWeight: 600, '&:hover': { color: '#1d4ed8', textDecoration: 'underline' } }}
+              >
+                Forgot password?
+              </Link>
+            </Box>
             <Button
               id="login-submit"
               type="submit"

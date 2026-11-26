@@ -1,30 +1,27 @@
 // ============================================================================
 // FILE:    Services/AuditLogService.cs
 // OWNER:   Bazar, Angelo
-// WBS:     13.1 Audit Logging
-// PURPOSE: One place to record important actions.
-//
-// TO BUILD: Log(action, actor, details) that adds an AuditLog row (who, what, when).
-// ACTIONS TO LOG: invite generated, user created / updated / deactivated, grade entered or changed,
-//                 attendance marked, semester ended.
-//
+// WBS:     13.1 Audit Logging, 13.2 Audit Logs API
+// PURPOSE: One place to record important actions, and the admin's audit trail.
+//          The log row is saved together with the change it describes (by the caller's UnitOfWork save).
 // ============================================================================
 
-using System.Security.Claims;
-using Edutrack.Data;
+using Edutrack.Dtos;
 using Edutrack.Models;
-using Microsoft.EntityFrameworkCore;
+using Edutrack.Repositories;
 
 namespace Edutrack.Services
 {
-    public class AuditLogService(EduTrackContext db)
+    public class AuditLogService(IAuditLogRepository logs, IUserRepository users)
     {
-        // Adds an AuditLog row. It is saved by the caller's SaveChangesAsync, together with the change it describes.
-        public async Task Log(string action, ClaimsPrincipal actor, string details)
+        // The logged-in user is the actor.
+        public async Task Log(string action, Caller actor, string details) =>
+            Log(action, await users.GetByIdAsync(actor.Id), details);
+
+        // For actions with no logged-in caller (e.g. Forgot Password): the account itself is the actor.
+        public void Log(string action, User? user, string details)
         {
-            var id = actor.UserId();
-            var user = await db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
-            db.AuditLogs.Add(new AuditLog
+            logs.Add(new AuditLog
             {
                 Action = action,
                 ActorId = user?.Id,
@@ -33,5 +30,10 @@ namespace Edutrack.Services
                 Details = details.Length > 500 ? details[..500] : details,
             });
         }
+
+        // 13.2: newest first. Capped at the latest 1000 rows; the page filters and pages them.
+        public async Task<ServiceResult<List<AuditLogDto>>> ListAsync() =>
+            (await logs.ListLatestAsync(1000))
+                .Select(a => new AuditLogDto(a.Id, a.Timestamp, a.Action, a.ActorName, a.ActorRole, a.Details)).ToList();
     }
 }

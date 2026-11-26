@@ -28,11 +28,12 @@ import {
   Typography,
 } from '@mui/material';
 import AddOutlined from '@mui/icons-material/AddOutlined';
+import EditOutlined from '@mui/icons-material/EditOutlined';
 import ClassOutlined from '@mui/icons-material/ClassOutlined';
 import PeopleAltOutlined from '@mui/icons-material/PeopleAltOutlined';
 import SearchOutlined from '@mui/icons-material/SearchOutlined';
 import EnrollmentRoster from '../../components/teacher/EnrollmentRoster';
-import { createClass, getClasses } from '../../api/classes';
+import { createClass, getClasses, updateClass, updateWeights } from '../../api/classes';
 import { getCurrentUser } from '../../api/client';
 
 const CATEGORY_DEFAULTS = { Quiz: 30, Project: 30, 'Module Exam': 40 };
@@ -50,6 +51,16 @@ function isUnauthorized(error) {
   return /\b401\b|unauthori[sz]ed/i.test(error?.message ?? '');
 }
 
+// The server's message when there is one (e.g. "The weights must total 100%"), otherwise a fallback.
+function errorMessage(error, fallback) {
+  if (isUnauthorized(error)) return 'Your session may have expired. Sign in again and retry.';
+  const text = error instanceof Error ? error.message : '';
+  return text && !/^Request failed/.test(text) ? text : fallback;
+}
+
+const sameWeights = (a = {}, b = {}) =>
+  Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([k, v]) => Number(b[k]) === Number(v));
+
 function statusLabel(status) {
   if (!status) return 'Unknown';
   return `${status.charAt(0).toUpperCase()}${status.slice(1)}`;
@@ -61,6 +72,7 @@ export default function TeacherClassesPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
+  const [editingClass, setEditingClass] = useState(null);
   const [rosterOpen, setRosterOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -108,7 +120,23 @@ export default function TeacherClassesPage() {
   const totalWeight = Object.values(form.weights).reduce((sum, value) => sum + (Number(value) || 0), 0);
 
   const openCreateDialog = () => {
+    setEditingClass(null);
     setForm(emptyForm());
+    setFormError('');
+    setCreateOpen(true);
+  };
+
+  // 7.1 Update Class: the same dialog, filled with the class's current details.
+  const openEditDialog = (classInfo) => {
+    setEditingClass(classInfo);
+    setForm({
+      name: classInfo.name ?? '',
+      sectionCode: classInfo.sectionCode ?? '',
+      description: classInfo.description ?? '',
+      schedule: classInfo.schedule || 'TBA',
+      weights: { ...(classInfo.weights && Object.keys(classInfo.weights).length ? classInfo.weights : CATEGORY_DEFAULTS) },
+      passingGrade: classInfo.passingGrade ?? 75,
+    });
     setFormError('');
     setCreateOpen(true);
   };
@@ -135,7 +163,7 @@ export default function TeacherClassesPage() {
       return;
     }
     if (teacher?.id == null) {
-      setFormError('Your teacher session is missing. Sign in again before creating a class.');
+      setFormError('Your teacher session is missing. Sign in again before saving a class.');
       return;
     }
     if (totalWeight !== 100) {
@@ -166,16 +194,30 @@ export default function TeacherClassesPage() {
     };
 
     try {
-      const created = await createClass(payload);
-      if (!created || typeof created !== 'object') throw new Error('The class response was incomplete.');
-      setClasses((current) => [created, ...current.filter((item) => item.id !== created.id)]);
-      setCreateOpen(false);
-      setForm(emptyForm());
-      setNotice('Class created successfully.');
+      if (editingClass) {
+        let updated = await updateClass(editingClass.id, {
+          name, sectionCode, description: payload.description, schedule: payload.schedule, passingGrade,
+        });
+        if (!sameWeights(payload.weights, editingClass.weights)) {
+          const saved = await updateWeights(editingClass.id, payload.weights);
+          updated = { ...updated, weights: saved?.weights ?? payload.weights };
+        }
+        setClasses((current) => current.map((item) => (item.id === editingClass.id ? { ...item, ...updated } : item)));
+        setCreateOpen(false);
+        setEditingClass(null);
+        setNotice('Class updated successfully.');
+      } else {
+        const created = await createClass(payload);
+        if (!created || typeof created !== 'object') throw new Error('The class response was incomplete.');
+        setClasses((current) => [created, ...current.filter((item) => item.id !== created.id)]);
+        setCreateOpen(false);
+        setForm(emptyForm());
+        setNotice('Class created successfully.');
+      }
     } catch (error) {
-      setFormError(isUnauthorized(error)
-        ? 'Your session may have expired. Sign in again before creating a class.'
-        : 'We could not create the class. Check the details and try again.');
+      setFormError(errorMessage(error, editingClass
+        ? 'We could not update the class. Check the details and try again.'
+        : 'We could not create the class. Check the details and try again.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -239,7 +281,7 @@ export default function TeacherClassesPage() {
               <TableCell sx={{ fontWeight: 800 }}>Schedule</TableCell>
               <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
               <TableCell align="center" sx={{ fontWeight: 800 }}>Enrolled</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 800 }}>Roster</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 800 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -283,9 +325,23 @@ export default function TeacherClassesPage() {
                     </Stack>
                   </TableCell>
                   <TableCell align="right">
-                    <Button size="small" variant="outlined" onClick={() => openRoster(item)} sx={{ borderRadius: 2, fontWeight: 700, whiteSpace: 'nowrap' }}>
-                      View Roster
-                    </Button>
+                    <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
+                      <Button
+                        size="small"
+                        variant="text"
+                        startIcon={<EditOutlined fontSize="small" />}
+                        onClick={() => openEditDialog(item)}
+                        disabled={isCompleted}
+                        title={isCompleted ? 'This class has ended. Its details are final.' : 'Edit class details'}
+                        aria-label={`Edit ${item.name}`}
+                        sx={{ borderRadius: 2, fontWeight: 700, whiteSpace: 'nowrap' }}
+                      >
+                        Edit
+                      </Button>
+                      <Button size="small" variant="outlined" onClick={() => openRoster(item)} sx={{ borderRadius: 2, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                        View Roster
+                      </Button>
+                    </Stack>
                   </TableCell>
                 </TableRow>
               );
@@ -314,8 +370,10 @@ export default function TeacherClassesPage() {
       <Dialog open={createOpen} onClose={closeCreateDialog} fullWidth maxWidth="sm">
         <Box component="form" onSubmit={handleCreate} noValidate>
           <DialogTitle sx={{ pb: 1 }}>
-            <Typography variant="h6" component="div" fontWeight={800}>Create New Class</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>Add a class to your teaching schedule.</Typography>
+            <Typography variant="h6" component="div" fontWeight={800}>{editingClass ? 'Edit Class' : 'Create New Class'}</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>
+              {editingClass ? `Update the details of ${editingClass.sectionCode}.` : 'Add a class to your teaching schedule.'}
+            </Typography>
           </DialogTitle>
           <DialogContent>
             <Stack spacing={2} sx={{ pt: 1 }}>
@@ -393,11 +451,11 @@ export default function TeacherClassesPage() {
             <Button onClick={closeCreateDialog} disabled={isSubmitting} color="inherit">Cancel</Button>
             <Button
               type="submit"
-              startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : <AddOutlined />}
+              startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : editingClass ? <EditOutlined /> : <AddOutlined />}
               disabled={isSubmitting}
               sx={{ borderRadius: 2, fontWeight: 700, minWidth: 140 }}
             >
-              {isSubmitting ? 'Creating…' : 'Create Class'}
+              {isSubmitting ? 'Saving…' : editingClass ? 'Save Changes' : 'Create Class'}
             </Button>
           </DialogActions>
         </Box>
