@@ -277,21 +277,12 @@ export default function TeacherClassesPage() {
         <Table sx={{ minWidth: 760 }} aria-label="Teacher classes">
           <TableHead>
             <TableRow>
-<<<<<<< Updated upstream
-              <TableCell sx={{ fontWeight: 800 }}>Class</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>Section</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>Schedule</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
-              <TableCell align="center" sx={{ fontWeight: 800 }}>Enrolled</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 800 }}>Actions</TableCell>
-=======
               <TableCell>Class Name</TableCell>
               <TableCell>Section</TableCell>
               <TableCell>Schedule</TableCell>
               <TableCell>Status</TableCell>
               <TableCell align="right">Enrolled</TableCell>
-              <TableCell align="right">Roster</TableCell>
->>>>>>> Stashed changes
+              <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -335,7 +326,6 @@ export default function TeacherClassesPage() {
                     </Stack>
                   </TableCell>
                   <TableCell align="right">
-<<<<<<< Updated upstream
                     <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
                       <Button
                         size="small"
@@ -349,15 +339,10 @@ export default function TeacherClassesPage() {
                       >
                         Edit
                       </Button>
-                      <Button size="small" variant="outlined" onClick={() => openRoster(item)} sx={{ borderRadius: 2, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      <Button startIcon={<VisibilityOutlined />} size="small" variant="outlined" onClick={() => openRoster(item)} sx={{ borderRadius: 2, fontWeight: 700, whiteSpace: 'nowrap' }}>
                         View Roster
                       </Button>
                     </Stack>
-=======
-                    <Button startIcon={<VisibilityOutlined />} size="small" variant="outlined" onClick={() => openRoster(item)} sx={{ borderRadius: 2, fontWeight: 700, whiteSpace: 'nowrap' }}>
-                      View Roster
-                    </Button>
->>>>>>> Stashed changes
                   </TableCell>
                 </TableRow>
               );
@@ -386,15 +371,10 @@ export default function TeacherClassesPage() {
       <Dialog open={createOpen} onClose={closeCreateDialog} fullWidth maxWidth="sm">
         <Box component="form" onSubmit={handleCreate} noValidate>
           <DialogTitle sx={{ pb: 1 }}>
-<<<<<<< Updated upstream
-            <Typography variant="h6" component="div" fontWeight={800}>{editingClass ? 'Edit Class' : 'Create New Class'}</Typography>
+            <Typography variant="h6" component="div">{editingClass ? 'Edit Class' : 'Create New Class'}</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>
               {editingClass ? `Update the details of ${editingClass.sectionCode}.` : 'Add a class to your teaching schedule.'}
             </Typography>
-=======
-            <Typography variant="h6" component="div">Create New Class</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>Add a class to your teaching schedule.</Typography>
->>>>>>> Stashed changes
           </DialogTitle>
           <DialogContent>
             <Stack spacing={2} sx={{ pt: 1 }}>

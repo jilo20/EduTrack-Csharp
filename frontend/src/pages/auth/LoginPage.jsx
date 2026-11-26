@@ -107,65 +107,6 @@ export default function LoginPage() {
           }}
         />
 
-<<<<<<< Updated upstream
-        {submitError && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>{submitError}</Alert>}
-
-        <Box component="form" onSubmit={handleSubmit} noValidate>
-          <Stack spacing={2.5}>
-            <TextField
-              id="login-email"
-              label="Email Address"
-              type="email"
-              autoComplete="email"
-              autoFocus
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              error={Boolean(errors.email)}
-              helperText={errors.email}
-              disabled={isSubmitting}
-            />
-            <TextField
-              id="login-password"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              error={Boolean(errors.password)}
-              helperText={errors.password}
-              disabled={isSubmitting}
-              slotProps={{ input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      onClick={() => setShowPassword((visible) => !visible)}
-                      edge="end"
-                      disabled={isSubmitting}
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              } }} />
-            <Box sx={{ textAlign: 'right', mt: -1 }}>
-              <Link
-                component={RouterLink}
-                to="/forgot-password"
-                variant="body2"
-                underline="none"
-                sx={{ color: '#2563EB', fontWeight: 600, '&:hover': { color: '#1d4ed8', textDecoration: 'underline' } }}
-              >
-                Forgot password?
-              </Link>
-            </Box>
-            <Button
-              id="login-submit"
-              type="submit"
-              size="large"
-              fullWidth
-              disabled={isSubmitting}
-=======
         <Paper
           elevation={24}
           sx={{
@@ -182,7 +123,6 @@ export default function LoginPage() {
         >
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Box
->>>>>>> Stashed changes
               sx={{
                 display: 'inline-flex',
                 p: 1.5,
@@ -252,6 +192,17 @@ export default function LoginPage() {
                     </InputAdornment>
                   ),
                 } }} />
+              <Box sx={{ textAlign: 'right', mt: -1 }}>
+                <Link
+                  component={RouterLink}
+                  to="/forgot-password"
+                  variant="body2"
+                  underline="none"
+                  sx={{ color: '#2563EB', fontWeight: 600, '&:hover': { color: '#1d4ed8', textDecoration: 'underline' } }}
+                >
+                  Forgot password?
+                </Link>
+              </Box>
               <Button
                 id="login-submit"
                 type="submit"
