@@ -77,8 +77,8 @@ and adds demo data to the configured database. Rerunning it skips existing
 demo accounts and preserves edited grades and passwords.
 
 Run the frontend with `VITE_USE_MOCK=false`. Sign in as teacher
-`kea.abaquita@edutrack.test` to see two classes with graded work, or as student
-`maryvincent.lopez@edutrack.test` to see performance across classes.
+`celina.ferrer@gmail.com` to see two classes with graded work, or as student
+`kea.abaquita@gmail.com` to see performance across classes on a fresh seed.
 All demo accounts initially use `EduTrackDemo123!`.
 
 ## Roles

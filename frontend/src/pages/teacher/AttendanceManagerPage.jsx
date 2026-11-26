@@ -34,11 +34,15 @@ function AttendanceDay({ section, date }) {
 }
 
 function AttendanceEditor({ section, date, initialRows }) {
-  const [rows, setRows] = useState(initialRows.map((r) => ({ ...r, status: r.status || '', remarks: r.remarks || '' })));
+  const completed = section.status === 'completed';
+  const [rows, setRows] = useState(() => initialRows.map((r) => ({
+    ...r,
+    status: r.status || (completed ? '' : 'Present'),
+    remarks: r.remarks || '',
+  })));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const completed = section.status === 'completed';
   const unmarked = rows.filter((r) => !r.status).length;
   function update(id, key, value) {
     setNotice(''); setRows((previous) => previous.map((r) => r.studentId === id ? { ...r, [key]: value } : r));

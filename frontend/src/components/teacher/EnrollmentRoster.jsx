@@ -238,7 +238,7 @@ export default function EnrollmentRoster({ open = false, selectedClass = null, o
                                 </Stack>
                               )}
                             />
-                            <Chip label={student.status || 'Enrolled'} size="small" color="success" variant="outlined" sx={{ textTransform: 'capitalize', fontWeight: 700 }} />
+                            <Chip label="Enrolled" size="small" color="success" variant="outlined" sx={{ fontWeight: 700 }} />
                           </ListItem>
                           {index < roster.length - 1 && <Divider component="li" />}
                         </Box>
