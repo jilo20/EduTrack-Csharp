@@ -4,12 +4,24 @@ using Edutrack.Models;
 using Edutrack.Repositories;
 using Edutrack.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddDataProtection();
+builder.Services.AddScoped<PasswordResetMail>();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("password-reset", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
+});
 
 builder.Services.AddOpenApi();
 builder.Services.AddValidation();
@@ -70,6 +82,8 @@ if (app.Environment.IsDevelopment())
 app.MigrateDb();
 
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

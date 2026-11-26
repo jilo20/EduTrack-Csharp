@@ -3,8 +3,8 @@
  * FILE:    src/pages/auth/ForgotPasswordPage.jsx
  * OWNER:   Bazar, Angelo
  * WBS:     4.3 Forgot Password
- * PURPOSE: Two steps: verify the institutional (invite) ID of the account, then set a new password.
- * API:     verifyResetId, resetPassword (src/api/auth.js)
+ * PURPOSE: Request a reset link by email, then set a new password from that link.
+ * API:     requestPasswordReset, resetPassword (src/api/auth.js)
  *
  * RULE:    Material UI components only. See frontend/README.md.
  * ==========================================================================
@@ -27,14 +27,13 @@ import {
   Typography,
 } from '@mui/material';
 import BadgeOutlined from '@mui/icons-material/BadgeOutlined';
-import CheckCircle from '@mui/icons-material/CheckCircle';
 import LockResetOutlined from '@mui/icons-material/LockResetOutlined';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { Link as RouterLink } from 'react-router-dom';
-import { resetPassword, verifyResetId } from '../../api/auth';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { resetPassword, requestPasswordReset } from '../../api/auth';
 
-const STEPS = ['Verify ID', 'New password'];
+const STEPS = ['Request link', 'New password'];
 
 // Same look as the Login and Register pages.
 const primaryButtonSx = {
@@ -51,9 +50,10 @@ const linkSx = { color: '#2563EB', fontWeight: 700, '&:hover': { color: '#1d4ed8
 const errorText = (error, fallback) => (error instanceof Error && error.message ? error.message : fallback);
 
 export default function ForgotPasswordPage() {
-  const [step, setStep] = useState(0);
-  const [idNumber, setIdNumber] = useState('');
-  const [firstName, setFirstName] = useState('');
+  const { hash } = useLocation();
+  const token = new URLSearchParams(hash.slice(1)).get('token');
+  const step = token ? 1 : 0;
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -65,9 +65,9 @@ export default function ForgotPasswordPage() {
   const handleVerify = async (event) => {
     event.preventDefault();
     if (busy) return;
-    const id = idNumber.trim();
-    if (!id) {
-      setErrors({ idNumber: 'Enter the ID number of your account.' });
+    const address = email.trim();
+    if (!/^[^\s@]+@[^\s@]+$/.test(address) || address.length > 50) {
+      setErrors({ email: 'Enter the email address on your account.' });
       return;
     }
 
@@ -75,16 +75,10 @@ export default function ForgotPasswordPage() {
     setMessage(null);
     setBusy(true);
     try {
-      const result = await verifyResetId(id);
-      if (!result?.valid) {
-        setMessage({ type: 'error', text: result?.error || 'No account uses this ID.' });
-        return;
-      }
-      setIdNumber(id);
-      setFirstName(result.firstName || '');
-      setStep(1);
+      await requestPasswordReset(address);
+      setMessage({ type: 'success', text: 'If an eligible account exists, we’ll send a reset link.' });
     } catch (error) {
-      setMessage({ type: 'error', text: errorText(error, 'Unable to check this ID. Please try again.') });
+      setMessage({ type: 'error', text: errorText(error, 'Unable to request a reset link. Please try again.') });
     } finally {
       setBusy(false);
     }
@@ -96,6 +90,7 @@ export default function ForgotPasswordPage() {
     const nextErrors = {};
     if (!password) nextErrors.password = 'Enter a new password.';
     else if (password.length < 8) nextErrors.password = 'Password must be at least 8 characters.';
+    else if (password.length > 100) nextErrors.password = 'Password must be at most 100 characters.';
     if (!confirmPassword) nextErrors.confirmPassword = 'Please confirm your new password.';
     else if (password !== confirmPassword) nextErrors.confirmPassword = 'Passwords do not match.';
     setErrors(nextErrors);
@@ -104,7 +99,7 @@ export default function ForgotPasswordPage() {
 
     setBusy(true);
     try {
-      await resetPassword(idNumber, password);
+      await resetPassword(token, password);
       setIsComplete(true);
       setPassword('');
       setConfirmPassword('');
@@ -117,7 +112,6 @@ export default function ForgotPasswordPage() {
   };
 
   const handleBack = () => {
-    setStep(0);
     setErrors({});
     setMessage(null);
   };
@@ -166,7 +160,7 @@ export default function ForgotPasswordPage() {
             Forgot Password
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Reset your password with your institutional ID
+            {token ? 'Choose a new password' : 'Request a reset link by email'}
           </Typography>
         </Box>
 
@@ -182,17 +176,18 @@ export default function ForgotPasswordPage() {
           <Box component="form" onSubmit={handleVerify} noValidate>
             <Stack spacing={2.5}>
               <TextField
-                label="ID Number"
-                autoComplete="off"
+                label="Email address"
+                type="email"
+                autoComplete="email"
                 autoFocus
-                value={idNumber}
+                value={email}
                 onChange={(event) => {
-                  setIdNumber(event.target.value);
+                  setEmail(event.target.value);
                   setErrors({});
                   setMessage(null);
                 }}
-                error={Boolean(errors.idNumber)}
-                helperText={errors.idNumber || 'The invite ID you registered with.'}
+                error={Boolean(errors.email)}
+                helperText={errors.email}
                 disabled={busy}
                 slotProps={{ input: { startAdornment: <InputAdornment position="start"><BadgeOutlined color="action" /></InputAdornment> } }}
               />
@@ -204,7 +199,7 @@ export default function ForgotPasswordPage() {
                 startIcon={busy ? <CircularProgress size={18} color="inherit" /> : null}
                 sx={primaryButtonSx}
               >
-                {busy ? 'Checking…' : 'Continue'}
+                {busy ? 'Sending…' : 'Send reset link'}
               </Button>
             </Stack>
           </Box>
@@ -215,12 +210,6 @@ export default function ForgotPasswordPage() {
         ) : (
           <Box component="form" onSubmit={handleReset} noValidate>
             <Stack spacing={2.25}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 1, borderRadius: 2, bgcolor: 'success.50', color: 'success.dark' }}>
-                <CheckCircle fontSize="small" />
-                <Typography variant="body2">
-                  {firstName ? `Account found: ${firstName}` : 'Account found'} ({idNumber})
-                </Typography>
-              </Box>
               <TextField
                 label="New Password"
                 type={showPassword ? 'text' : 'password'}
@@ -244,7 +233,7 @@ export default function ForgotPasswordPage() {
                 disabled={busy}
               />
               <Stack direction="row" spacing={1.5} sx={{ pt: 0.5 }}>
-                <Button type="button" variant="outlined" onClick={handleBack} disabled={busy} sx={{ minWidth: 96, borderRadius: 2, fontWeight: 700 }}>
+                <Button component={RouterLink} to="/forgot-password" variant="outlined" onClick={handleBack} disabled={busy} sx={{ minWidth: 96, borderRadius: 2, fontWeight: 700 }}>
                   Back
                 </Button>
                 <Button

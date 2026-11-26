@@ -9,14 +9,14 @@
 //   - Login: a successful login resets LoginAttempts to 0. Inactive users cannot log in.
 //   - Verify: the invite ID must exist in RegisteredIds with IsUsed = false.
 //   - Register: the role is copied from the invite, the password is hashed, the invite is marked used.
-//   - Forgot Password: the institutional ID of an active account; the reset unlocks the account,
-//     writes an audit log and notifies the user.
+//   - Forgot Password: a valid emailed link lets an active account reset its password.
 // ============================================================================
 
 using Edutrack.Dtos;
 using Edutrack.Models;
 using Edutrack.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Edutrack.Services
 {
@@ -27,7 +27,9 @@ namespace Edutrack.Services
         TokenService tokens,
         IPasswordHasher<User> hasher,
         AuditLogService audit,
-        NotificationService notifications)
+        NotificationService notifications,
+        PasswordResetMail resetMail,
+        ILogger<AuthService> logger)
     {
         private const int MaxAttempts = 5;
         private static readonly TimeSpan LockTime = TimeSpan.FromMinutes(15);
@@ -112,21 +114,26 @@ namespace Edutrack.Services
             return BuildAuthResponse(user);
         }
 
-        // 4.3 Forgot Password, step 1: is there an active account with this ID?
-        public async Task<ServiceResult<ResetVerifyResultDto>> VerifyResetIdAsync(VerifyIdDto dto)
+        public async Task<ServiceResult<OkResultDto>> RequestPasswordResetAsync(RequestPasswordResetDto dto)
         {
-            var user = await users.GetByIdNumberAsync(dto.IdNumber.Trim());
-            if (user is null) return new ResetVerifyResultDto(false, null, "No account uses this ID.");
-            if (user.Status != "active") return new ResetVerifyResultDto(false, null, "This account is inactive. Contact the admin.");
-            return new ResetVerifyResultDto(true, user.FirstName, null);
+            if (resetMail.Enabled)
+            {
+                var user = await users.GetByEmailAsync(dto.Email.Trim().ToLowerInvariant());
+                if (user?.Status == "active") await resetMail.SendAsync(user);
+                else logger.LogInformation("Password reset email skipped because no active account matched.");
+            }
+            else logger.LogInformation("Password reset email skipped because local Mailpit is disabled.");
+            return new OkResultDto(true);
         }
 
         // 4.3 Forgot Password, step 2: set the new password.
         public async Task<ServiceResult<OkResultDto>> ResetPasswordAsync(ResetPasswordDto dto)
         {
-            var user = await users.GetByIdNumberAsync(dto.IdNumber.Trim());
-            if (user is null) return Fail.BadRequest("No account uses this ID.");
-            if (user.Status != "active") return Fail.Forbidden("This account is inactive. Contact the admin.");
+            var reset = resetMail.Read(dto.Token);
+            if (reset is null) return Fail.BadRequest("This reset link is invalid or expired.");
+            var user = await users.GetByEmailAsync(reset.Value.Email);
+            if (user is null || user.Status != "active" || !resetMail.Matches(user, reset.Value.Fingerprint))
+                return Fail.BadRequest("This reset link is invalid or expired.");
 
             user.Password = hasher.HashPassword(user, dto.Password);
             user.LoginAttempts = 0;    // a reset also unlocks an account locked by wrong tries
@@ -134,7 +141,14 @@ namespace Edutrack.Services
             audit.Log("PASSWORD_RESET", user, $"Password reset with Forgot Password for {user.Email}");
             notifications.Notify(user.Id, "Password changed",
                 "Your password was reset with Forgot Password. If this wasn't you, contact the admin.", "warning");
-            await uow.SaveChangesAsync();
+            try
+            {
+                await uow.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Fail.BadRequest("This reset link is invalid or expired.");
+            }
             return new OkResultDto(true);
         }
 

@@ -16,10 +16,17 @@ namespace Edutrack.Data
         public static void AddEduTrackDb(this WebApplicationBuilder builder) {
             var connectionString = builder.Configuration.GetConnectionString("Edutrack");
             var admin = builder.Configuration.GetSection("DefaultAdmin");
+            var seedDemo = builder.Environment.IsDevelopment() &&
+                builder.Configuration.GetValue<bool>("DemoSeed:Enabled");
+            void SeedDatabase(DbContext context)
+            {
+                Seed(context, admin);
+                if (seedDemo) DemoSeeder.Seed(context);
+            }
             builder.Services.AddDbContext<EduTrackContext>(options => options.UseMySql(connectionString,
                     ServerVersion.AutoDetect(connectionString))
-                    .UseSeeding((context, _) => Seed(context, admin))
-                    .UseAsyncSeeding((context, _, _) => { Seed(context, admin); return Task.CompletedTask; })
+                    .UseSeeding((context, _) => SeedDatabase(context))
+                    .UseAsyncSeeding((context, _, _) => { SeedDatabase(context); return Task.CompletedTask; })
             );
         }
 

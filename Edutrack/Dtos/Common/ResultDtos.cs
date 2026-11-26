@@ -4,8 +4,6 @@
 //          The JSON shape is the same as the anonymous objects the controllers returned before.
 // ============================================================================
 
-using System.Text.Json.Serialization;
-
 namespace Edutrack.Dtos
 {
     public record EnrollResultDto(int ClassId, int Enrolled, int AlreadyEnrolled);
@@ -24,9 +22,4 @@ namespace Edutrack.Dtos
 
     public record VerifyInviteResultDto(bool Valid, string? Role);
 
-    // Forgot Password step 1: { valid, firstName } or { valid, error }.
-    public record ResetVerifyResultDto(
-        bool Valid,
-        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? FirstName,
-        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Error);
 }

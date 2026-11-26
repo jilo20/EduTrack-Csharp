@@ -9,15 +9,14 @@
 //   POST /api/auth/verify-id  body: VerifyIdDto   -> { valid, role }
 //   POST /api/auth/register   body: RegisterDto   -> AuthResponseDto
 //   GET  /api/auth/me         (logged in)         -> UserDto
-//   POST /api/auth/forgot-password/verify  body: VerifyIdDto       -> { valid, firstName }
+//   POST /api/auth/forgot-password/request body: RequestPasswordResetDto -> { ok }
 //   POST /api/auth/forgot-password/reset   body: ResetPasswordDto  -> { ok }
 // RULES:
 //   - Login: wrong password adds 1 to User.LoginAttempts. At 5, set User.LockUntil and refuse login until then.
 //   - Login: a successful login resets LoginAttempts to 0. Inactive users cannot log in.
 //   - Verify: the ID must exist in RegisteredIds with IsUsed = false.
 //   - Register: copy the role from the invite, hash the password, then set the invite IsUsed = true.
-//   - Forgot Password (4.3): the user proves who they are with the institutional (invite) ID of an
-//     active account. The reset unlocks the account, writes an audit log and notifies the user.
+//   - Forgot Password: send a reset link to the account email in local development.
 // USES: Services/TokenService.cs, Dtos/Auth/*
 //
 //
@@ -29,6 +28,7 @@ using Edutrack.Dtos;
 using Edutrack.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Edutrack.Controllers
 {
@@ -47,12 +47,14 @@ namespace Edutrack.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterDto dto) => Respond(await auth.RegisterAsync(dto));
 
-        [HttpPost("forgot-password/verify")]
+        [HttpPost("forgot-password/request")]
         [AllowAnonymous]
-        public async Task<IActionResult> VerifyResetId(VerifyIdDto dto) => Respond(await auth.VerifyResetIdAsync(dto));
+        [EnableRateLimiting("password-reset")]
+        public async Task<IActionResult> RequestPasswordReset(RequestPasswordResetDto dto) => Respond(await auth.RequestPasswordResetAsync(dto));
 
         [HttpPost("forgot-password/reset")]
         [AllowAnonymous]
+        [EnableRateLimiting("password-reset")]
         public async Task<IActionResult> ResetPassword(ResetPasswordDto dto) => Respond(await auth.ResetPasswordAsync(dto));
 
         [HttpGet("me")]

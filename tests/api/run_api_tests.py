@@ -381,15 +381,14 @@ def run_cases(r: Runner):
     r.case("NTF-07", "Notifications", "Notifications need a login", 401, "GET", "/notifications")
 
     # ---------- 4.3 Forgot password ----------
-    r.case("FPW-01", "Forgot Password", "Verify: ID of an active account is valid", 200, "POST", "/auth/forgot-password/verify", {"idNumber": s3["idNumber"]},
-           check=lambda b: expect(b["valid"] and b["firstName"] == "Carlo", b))
-    r.case("FPW-02", "Forgot Password", "Verify: unknown ID is not valid", 200, "POST", "/auth/forgot-password/verify", {"idNumber": "1999000000"},
-           check=lambda b: expect(b["valid"] is False, b))
-    r.case("FPW-03", "Forgot Password", "Reset with a short password is rejected", 400, "POST", "/auth/forgot-password/reset", {"idNumber": s3["idNumber"], "password": "short"})
-    r.case("FPW-04", "Forgot Password", "Reset with an unknown ID is rejected", 400, "POST", "/auth/forgot-password/reset", {"idNumber": "1999000000", "password": "NewPass123"})
-    r.case("FPW-05", "Forgot Password", "Reset sets the new password", 200, "POST", "/auth/forgot-password/reset", {"idNumber": s3["idNumber"], "password": "NewPass123"})
-    r.case("FPW-06", "Forgot Password", "Old password no longer works", 401, "POST", "/auth/login", {"email": "carlo@test.com", "password": pw})
-    r.case("FPW-07", "Forgot Password", "New password works", 200, "POST", "/auth/login", {"email": "carlo@test.com", "password": "NewPass123"})
+    r.case("FPW-01", "Forgot Password", "Active account gets a generic response", 200, "POST", "/auth/forgot-password/request", {"email": "carlo@test.com"},
+           check=lambda b: expect(b == {"ok": True}, b))
+    r.case("FPW-02", "Forgot Password", "Unknown account gets the same response", 200, "POST", "/auth/forgot-password/request", {"email": "unknown@example.test"},
+           check=lambda b: expect(b == {"ok": True}, b))
+    r.case("FPW-03", "Forgot Password", "Reset with a short password is rejected", 400, "POST", "/auth/forgot-password/reset", {"token": "invalid", "password": "short"})
+    r.case("FPW-04", "Forgot Password", "Reset with an invalid token is rejected", 400, "POST", "/auth/forgot-password/reset", {"token": "invalid", "password": "NewPass123"})
+    r.case("FPW-05", "Forgot Password", "ID alone cannot reset the password", 400, "POST", "/auth/forgot-password/reset", {"idNumber": s3["idNumber"], "password": "NewPass123"})
+    r.case("FPW-06", "Forgot Password", "Rejected resets leave the password intact", 200, "POST", "/auth/login", {"email": "carlo@test.com", "password": pw})
 
     # ---------- 4.2 Lockout ----------
     for i in range(4):

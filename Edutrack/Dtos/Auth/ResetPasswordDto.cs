@@ -11,7 +11,10 @@ using System.ComponentModel.DataAnnotations;
 namespace Edutrack.Dtos
 {
     public record ResetPasswordDto(
-        [Required][StringLength(20)] string IdNumber,
+        [Required][StringLength(2048)] string Token,
         [Required][StringLength(100, MinimumLength = 8)] string Password
     );
+
+    public record RequestPasswordResetDto(
+        [Required][EmailAddress][StringLength(50)] string Email);
 }

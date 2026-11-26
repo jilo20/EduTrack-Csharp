@@ -39,6 +39,7 @@ namespace Edutrack.Data
         {
             // Unique keys
             b.Entity<User>().HasIndex(u => u.Email).IsUnique();
+            b.Entity<User>().Property(u => u.Password).IsConcurrencyToken();
             b.Entity<User>().HasIndex(u => u.IdNumber).IsUnique();
             b.Entity<RegisteredId>().HasIndex(r => r.IdNumber).IsUnique();
             b.Entity<Enrollment>().HasIndex(e => new { e.SectionId, e.StudentId }).IsUnique();
