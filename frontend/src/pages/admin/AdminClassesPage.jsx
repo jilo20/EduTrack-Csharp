@@ -1,3 +1,4 @@
+import { displayLabel } from '../../theme';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -37,8 +38,7 @@ function getStatus(item) {
 }
 
 function statusText(status) {
-  if (!status) return 'Unknown';
-  return `${status.charAt(0).toUpperCase()}${status.slice(1)}`;
+  return displayLabel(status) || 'Unknown';
 }
 
 function isUnauthorized(error) {
@@ -86,21 +86,21 @@ export default function AdminClassesPage() {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', mb: 3.5 }} spacing={1}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', mb: 2 }} spacing={1}>
         <Box>
-          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.5px' }}>All Classes</Typography>
-          <Typography color="text.secondary" sx={{ mt: 0.5 }}>Institutional overview of all academic sections.</Typography>
+          <Typography variant="pageTitle">All Classes</Typography>
+          <Typography variant="pageDescription" color="text.secondary">Institutional overview of all academic sections.</Typography>
         </Box>
         {!loading && !loadError && <Chip label={`${filteredClasses.length} ${filteredClasses.length === 1 ? 'Class' : 'Classes'} Found`} size="small" color="primary" variant="outlined" sx={{ fontWeight: 800 }} />}
       </Stack>
 
       {loadError && (
-        <Alert severity="error" sx={{ mb: 2.5 }} action={<Button color="inherit" size="small" onClick={loadClasses}>Retry</Button>}>
+        <Alert severity="error" sx={{ mb: 2 }} action={<Button color="inherit" size="small" onClick={loadClasses}>Retry</Button>}>
           {loadError}
         </Alert>
       )}
 
-      <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2.5 }, mb: 2.5, border: 1, borderColor: 'divider', borderRadius: 3 }}>
+      <Paper elevation={0} sx={{ p: 2, mb: 2, border: 1, borderColor: 'divider' }}>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ alignItems: { md: 'center' } }}>
           <TextField
             placeholder="Search by class, section, or teacher..."
@@ -116,33 +116,33 @@ export default function AdminClassesPage() {
               aria-label="Filter classes by status"
               sx={{ borderRadius: 2, bgcolor: 'background.default', fontWeight: 600 }}
             >
-              <MenuItem value="all">All statuses</MenuItem>
+              <MenuItem value="all">All Statuses</MenuItem>
               {statuses.map((status) => <MenuItem key={status} value={status}>{statusText(status)}</MenuItem>)}
             </Select>
           </FormControl>
           <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
             <Chip label={`${activeCount} Active`} size="small" color="success" variant="outlined" />
-            <Chip label={`${completedCount} Completed`} size="small" variant="outlined" />
+            <Chip color="success" label={`${completedCount} Completed`} size="small" variant="outlined" />
           </Stack>
         </Stack>
       </Paper>
 
-      <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, overflowX: 'auto' }}>
-        <Table sx={{ minWidth: 760 }} aria-label="All classes">
-          <TableHead sx={{ bgcolor: 'action.hover' }}>
+      <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider', overflowX: 'auto' }}>
+        <Table sx={{ minWidth: 760 }} aria-label="All Classes">
+          <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 800 }}>Class / Course</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>Teacher</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>Section</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>Schedule</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
-              <TableCell align="center" sx={{ fontWeight: 800 }}>Students</TableCell>
+              <TableCell>Class Name</TableCell>
+              <TableCell>Teacher</TableCell>
+              <TableCell>Section</TableCell>
+              <TableCell>Schedule</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell align="right">Students</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 7 }}>
+                <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                   <CircularProgress size={28} aria-label="Loading classes" />
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Loading all classes...</Typography>
                 </TableCell>
@@ -179,20 +179,20 @@ export default function AdminClassesPage() {
                       icon={isCompleted ? <CheckCircleOutline /> : status === 'active' ? <RadioButtonCheckedOutlined /> : undefined}
                       label={statusText(status)}
                       size="small"
-                      color={isCompleted ? 'default' : status === 'active' ? 'success' : 'primary'}
+                      color={isCompleted || status === 'active' ? 'success' : 'default'}
                       variant={status === 'active' ? 'filled' : 'outlined'}
                       sx={{ fontWeight: 700 }}
                     />
                   </TableCell>
-                  <TableCell align="center">
+                  <TableCell align="right">
                     {item.studentCount != null ? <Typography fontWeight={800}>{item.studentCount}</Typography> : <Typography color="text.secondary">—</Typography>}
                   </TableCell>
                 </TableRow>
               );
             }) : (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 7 }}>
-                  <ClassOutlined color="disabled" sx={{ fontSize: 42 }} />
+                <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                  <ClassOutlined color="disabled" sx={{ fontSize: 32 }} />
                   <Typography fontWeight={700} sx={{ mt: 1 }}>
                     {loadError ? 'Classes are unavailable.' : classes.length ? 'No classes match your search.' : 'No classes available yet.'}
                   </Typography>

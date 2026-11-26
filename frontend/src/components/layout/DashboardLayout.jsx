@@ -35,7 +35,7 @@ import { clearSession, getCurrentUser } from '../../api/client';
 import { NAV } from '../../navigation';
 import NotificationPanel from '../common/NotificationPanel';
 
-const DRAWER_WIDTH = 250;
+const DRAWER_WIDTH = 232;
 
 const NAV_ICONS = {
   Dashboard: <DashboardOutlined />,
@@ -81,7 +81,7 @@ export default function DashboardLayout() {
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Toolbar />
       <Divider />
-      <List sx={{ px: 1.5, py: 2, flexGrow: 1 }}>
+      <List sx={{ px: 1.5, py: 1.5, flexGrow: 1 }}>
         {links.map((item) => {
           const path = item.path ? `/dashboard/${item.path}` : '/dashboard';
           const selected = item.path
@@ -93,18 +93,20 @@ export default function DashboardLayout() {
               component={Link}
               to={path}
               selected={selected}
+              aria-current={selected ? 'page' : undefined}
               onClick={() => setMobileOpen(false)}
               sx={{
                 mb: 0.5,
-                py: 1.15,
-                borderRadius: 2,
+                minHeight: 42,
+                py: 0.5,
+                borderRadius: 1,
                 color: selected ? roleColor : 'text.secondary',
-                '&.Mui-selected': { bgcolor: 'action.selected', color: roleColor },
+                '&.Mui-selected': { bgcolor: (theme) => theme.palette.action.selected, color: roleColor },
                 '&.Mui-selected:hover': { bgcolor: 'action.hover' },
               }}
             >
-              <ListItemIcon sx={{ minWidth: 42, color: 'inherit' }}>{NAV_ICONS[item.label]}</ListItemIcon>
-              <ListItemText primary={item.label} slotProps={{ primary: { fontSize: '0.875rem', fontWeight: selected ? 700 : 500 } }} />
+              <ListItemIcon sx={{ minWidth: 34, '& .MuiSvgIcon-root': { fontSize: 20 }, color: 'inherit' }}>{NAV_ICONS[item.label]}</ListItemIcon>
+              <ListItemText primary={item.label} slotProps={{ primary: { fontSize: '0.875rem', fontWeight: 500 } }} />
             </ListItemButton>
           );
         })}
@@ -113,10 +115,10 @@ export default function DashboardLayout() {
       <List sx={{ px: 1.5, py: 1.5 }}>
         <ListItemButton
           onClick={handleLogout}
-          sx={{ borderRadius: 2, color: 'error.main', '&:hover': { bgcolor: 'action.hover' } }}
+          sx={{ borderRadius: 1, color: 'error.main', '&:hover': { bgcolor: 'action.hover' } }}
         >
-          <ListItemIcon sx={{ minWidth: 42, color: 'inherit' }}><LogoutRounded /></ListItemIcon>
-          <ListItemText primary="Log out" slotProps={{ primary: { fontSize: '0.875rem', fontWeight: 600 } }} />
+          <ListItemIcon sx={{ minWidth: 34, '& .MuiSvgIcon-root': { fontSize: 20 }, color: 'inherit' }}><LogoutRounded /></ListItemIcon>
+          <ListItemText primary="Log Out" slotProps={{ primary: { fontSize: '0.875rem', fontWeight: 600 } }} />
         </ListItemButton>
       </List>
     </Box>
@@ -137,12 +139,12 @@ export default function DashboardLayout() {
           borderColor: 'divider',
         }}
       >
-        <Toolbar sx={{ minHeight: { xs: 64, sm: 72 }, justifyContent: 'space-between', gap: 2 }}>
+        <Toolbar sx={{ justifyContent: 'space-between', gap: { xs: 0.75, sm: 2 } }}>
           <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', minWidth: 0 }}>
             {!isDesktop && (
-              <IconButton aria-label="Open navigation menu" onClick={() => setMobileOpen(true)} edge="start">
+              <Tooltip title="Open Navigation Menu"><IconButton aria-label="Open navigation menu" onClick={() => setMobileOpen(true)} edge="start">
                 <MenuRounded />
-              </IconButton>
+              </IconButton></Tooltip>
             )}
             <Typography variant="h5" component="div" sx={{ fontWeight: 800, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
               EduTrack<Box component="span" sx={{ color: 'secondary.main' }}>.</Box>
@@ -151,13 +153,13 @@ export default function DashboardLayout() {
           <Stack direction="row" spacing={{ xs: 1, sm: 1.5 }} sx={{ alignItems: 'center', minWidth: 0 }}>
             <NotificationPanel />
             <Box sx={{ textAlign: 'right', minWidth: 0 }}>
-              <Typography variant="body2" fontWeight={700} noWrap sx={{ maxWidth: { xs: 110, sm: 220 } }}>{displayName}</Typography>
-              <Typography variant="caption" fontWeight={800} sx={{ color: roleColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <Typography variant="body2" fontWeight={700} noWrap sx={{ maxWidth: { xs: 88, sm: 200 } }}>{displayName}</Typography>
+              <Typography variant="caption" fontWeight={600} sx={{ color: roleColor }}>
                 {user?.role}
               </Typography>
             </Box>
             <Tooltip title={`${displayName} (${user?.role ?? 'user'})`}>
-              <Avatar sx={{ bgcolor: roleColor, width: 38, height: 38, fontSize: '0.8rem', fontWeight: 800 }}>
+              <Avatar sx={{ bgcolor: roleColor, width: 32, height: 32, fontSize: '0.8rem', fontWeight: 800 }}>
                 {initialsFor(user)}
               </Avatar>
             </Tooltip>
@@ -185,7 +187,7 @@ export default function DashboardLayout() {
         </Drawer>
       </Box>
 
-      <Box component="main" sx={{ flexGrow: 1, minWidth: 0, px: { xs: 2, sm: 3, lg: 4 }, pb: 4, pt: { xs: 10, sm: 11 } }}>
+      <Box component="main" sx={{ flexGrow: 1, minWidth: 0, px: { xs: 2, sm: 2.5 }, pb: 2.5, pt: { xs: 9.5, sm: 10 } }}>
         <Outlet />
       </Box>
     </Box>

@@ -1,3 +1,6 @@
+import EditOutlined from '@mui/icons-material/EditOutlined';
+import AddOutlined from '@mui/icons-material/AddOutlined';
+import { displayLabel } from '../../theme';
 // OWNER: Lopez, Mary Vincent | WBS 6.4 User Manager
 import { useEffect, useState } from 'react';
 import { Alert, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Paper, Stack, Tab, Tabs, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
@@ -68,39 +71,42 @@ export default function UserManagerPage() {
   }
   const change = (key) => (e) => setForm((previous) => ({ ...previous, [key]: e.target.value }));
 
-  return <Stack spacing={3}>
-    <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-      <Typography variant="h4">User Manager</Typography>
-      <Button variant="contained" onClick={() => edit(null)}>Add {role.toLowerCase()}</Button>
+  return <Stack spacing={2}>
+    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }}>
+      <div>
+        <Typography variant="pageTitle">User Manager</Typography>
+        <Typography variant="pageDescription" color="text.secondary">Manage student and teacher accounts.</Typography>
+      </div>
+      <Button startIcon={<AddOutlined />} variant="contained" onClick={() => edit(null)}>Add {role}</Button>
     </Stack>
     {notice && <Alert severity="success" onClose={() => setNotice('')}>{notice}</Alert>}
-    <Tabs value={role} onChange={(_, value) => setRole(value)} aria-label="Account role">
+    <Tabs value={role} onChange={(_, value) => setRole(value)} aria-label="Account Role">
       <Tab label="Students" value="Student" /><Tab label="Teachers" value="Teacher" />
     </Tabs>
-    <TextField label="Search name, email, or ID" value={search} onChange={(e) => setSearch(e.target.value)} />
+    <TextField label="Search Name, Email, or ID" value={search} onChange={(e) => setSearch(e.target.value)} />
     {loading ? <LoadingState message="Loading accounts…" /> :
       error ? <ErrorState message={error} onRetry={load} /> :
-      visible.length === 0 ? <EmptyState title="No accounts found" description="No accounts match your search in this tab." /> :
+      visible.length === 0 ? <EmptyState title="No Accounts Found" description="No accounts match your search in this tab." /> :
       <TableContainer component={Paper}><Table aria-label="User accounts">
-        <TableHead><TableRow>{['Name', 'Email', 'ID', 'Status', 'Actions'].map((h) => <TableCell key={h}>{h}</TableCell>)}</TableRow></TableHead>
+        <TableHead><TableRow>{['Name', 'Email Address', 'ID Number', 'Status', 'Actions'].map((h) => <TableCell key={h} align={h === 'Actions' ? 'right' : 'left'}>{h}</TableCell>)}</TableRow></TableHead>
         <TableBody>{visible.map((u) => <TableRow key={u.id}>
           <TableCell>{u.firstName} {u.lastName}</TableCell><TableCell>{u.email}</TableCell><TableCell>{u.idNumber || 'Pending'}</TableCell>
-          <TableCell><Chip size="small" label={u.status} color={u.status === 'active' ? 'success' : 'default'} /></TableCell>
-          <TableCell><Stack direction="row" spacing={1}>
-            <Button onClick={() => edit(u)} aria-label={`Edit ${u.firstName} ${u.lastName}`}>Edit</Button>
-            <Button color="error" disabled={u.status === 'inactive'} onClick={() => { setSaveError(''); setTarget(u); }} aria-label={`Deactivate ${u.firstName} ${u.lastName}`}>Deactivate</Button>
+          <TableCell><Chip size="small" label={displayLabel(u.status)} color={u.status === 'active' ? 'success' : 'default'} /></TableCell>
+          <TableCell align="right"><Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end' }}>
+            <Button startIcon={<EditOutlined />} size="small" variant="text" onClick={() => edit(u)} aria-label={`Edit ${u.firstName} ${u.lastName}`}>Edit</Button>
+            <Button size="small" variant="text" color="error" disabled={u.status === 'inactive'} onClick={() => { setSaveError(''); setTarget(u); }} aria-label={`Deactivate ${u.firstName} ${u.lastName}`}>Deactivate</Button>
           </Stack></TableCell>
         </TableRow>)}</TableBody>
       </Table></TableContainer>}
     <Dialog open={Boolean(form)} onClose={() => { if (!saving) setForm(null); }} fullWidth maxWidth="sm">
       {form && <Stack component="form" onSubmit={save}>
-        <DialogTitle>{form.id ? 'Edit account' : 'Add account'}</DialogTitle>
+        <DialogTitle>{form.id ? 'Edit Account' : 'Add Account'}</DialogTitle>
         <DialogContent><Stack spacing={2} sx={{ pt: 1 }}>
           {saveError && <Alert severity="error">{saveError}</Alert>}
-          <TextField required label="First name" value={form.firstName} onChange={change('firstName')} disabled={saving} slotProps={{ htmlInput: { maxLength: 50 } }} />
-          <TextField required label="Last name" value={form.lastName} onChange={change('lastName')} disabled={saving} slotProps={{ htmlInput: { maxLength: 50 } }} />
-          <TextField required type="email" label="Email" value={form.email} onChange={change('email')} disabled={saving} slotProps={{ htmlInput: { maxLength: 50 } }} />
-          {!form.id && <TextField required type="password" label="Initial password" value={form.password} onChange={change('password')} disabled={saving} helperText="Use at least 8 characters." slotProps={{ htmlInput: { minLength: 8, maxLength: 100 } }} />}
+          <TextField required label="First Name" value={form.firstName} onChange={change('firstName')} disabled={saving} slotProps={{ htmlInput: { maxLength: 50 } }} />
+          <TextField required label="Last Name" value={form.lastName} onChange={change('lastName')} disabled={saving} slotProps={{ htmlInput: { maxLength: 50 } }} />
+          <TextField required type="email" label="Email Address" value={form.email} onChange={change('email')} disabled={saving} slotProps={{ htmlInput: { maxLength: 50 } }} />
+          {!form.id && <TextField required type="password" label="Initial Password" value={form.password} onChange={change('password')} disabled={saving} helperText="Use at least 8 characters." slotProps={{ htmlInput: { minLength: 8, maxLength: 100 } }} />}
           <TextField select label="Role" value={form.role} onChange={change('role')} disabled={saving}>
             <MenuItem value="Student">Student</MenuItem><MenuItem value="Teacher">Teacher</MenuItem>
           </TextField>
@@ -108,16 +114,16 @@ export default function UserManagerPage() {
             <MenuItem value="active">Active</MenuItem><MenuItem value="inactive">Inactive</MenuItem>
           </TextField>}
         </Stack></DialogContent>
-        <DialogActions><Button disabled={saving} onClick={() => setForm(null)}>Cancel</Button><Button variant="contained" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button></DialogActions>
+        <DialogActions><Button variant="text" disabled={saving} onClick={() => setForm(null)}>Cancel</Button><Button variant="contained" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button></DialogActions>
       </Stack>}
     </Dialog>
     <Dialog open={Boolean(target)} onClose={() => { if (!saving) setTarget(null); }} fullWidth maxWidth="xs">
-      <DialogTitle>Deactivate account?</DialogTitle>
+      <DialogTitle>Deactivate Account?</DialogTitle>
       <DialogContent><Stack spacing={2}>
         {saveError && <Alert severity="error">{saveError}</Alert>}
         <Typography>Deactivate {target?.firstName} {target?.lastName}? Their records will be preserved.</Typography>
       </Stack></DialogContent>
-      <DialogActions><Button disabled={saving} onClick={() => setTarget(null)}>Cancel</Button><Button color="error" variant="contained" disabled={saving} onClick={deactivate}>{saving ? 'Deactivating…' : 'Deactivate'}</Button></DialogActions>
+      <DialogActions><Button variant="text" disabled={saving} onClick={() => setTarget(null)}>Cancel</Button><Button color="error" variant="contained" disabled={saving} onClick={deactivate}>{saving ? 'Deactivating…' : 'Deactivate'}</Button></DialogActions>
     </Dialog>
   </Stack>;
 }

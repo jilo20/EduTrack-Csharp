@@ -1,4 +1,5 @@
 // OWNER: Lopez, Mary Vincent — WBS 12.5 Notification Panel
+import RefreshOutlined from '@mui/icons-material/RefreshOutlined';
 import { useState } from 'react';
 import { Alert, Badge, Box, Button, Divider, IconButton, List, ListItem, Paper, Popover, Stack, Tooltip, Typography } from '@mui/material';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
@@ -27,13 +28,13 @@ export default function NotificationPanel() {
       <Badge badgeContent={unread} color="error"><NotificationsOutlined /></Badge>
     </IconButton></Tooltip>
     <Popover open={Boolean(anchor)} anchorEl={anchor} onClose={() => setAnchor(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
-      <Paper component="section" role="dialog" aria-label="Notifications" sx={{ width: { xs: 310, sm: 420 }, maxWidth: '95vw', p: 2 }}>
+      <Paper component="section" role="dialog" aria-label="Notifications" sx={{ width: { xs: 320, sm: 400 }, maxWidth: 'calc(100vw - 32px)', p: 2 }}>
         <Stack spacing={1.5}>
           <Typography variant="h6">Notifications {unread > 0 && '(' + unread + ' unread)'}</Typography>
-          <Stack direction="row" spacing={1}>
-            <Button size="small" disabled={busy || resource.loading || !unread} onClick={() => perform(markAllRead, () => setReadIds((ids) => [...new Set([...ids, ...items.map((n) => n.id)])]))}>Read all</Button>
-            <Button size="small" color="error" disabled={busy || resource.loading || !items.length} onClick={() => perform(clearAll, () => setClearedIds((ids) => [...new Set([...ids, ...items.map((n) => n.id)])]))}>Clear all</Button>
-            <Button size="small" disabled={busy || resource.loading} onClick={resource.refresh}>Refresh</Button>
+          <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
+            <Button size="small" variant="text" disabled={busy || resource.loading || !unread} onClick={() => perform(markAllRead, () => setReadIds((ids) => [...new Set([...ids, ...items.map((n) => n.id)])]))}>Mark All as Read</Button>
+            <Button size="small" variant="text" color="error" disabled={busy || resource.loading || !items.length} onClick={() => perform(clearAll, () => setClearedIds((ids) => [...new Set([...ids, ...items.map((n) => n.id)])]))}>Clear All</Button>
+            <Button startIcon={<RefreshOutlined />} size="small" variant="text" disabled={busy || resource.loading} onClick={resource.refresh}>Refresh</Button>
           </Stack>
           {error && <Alert severity="error">{error}</Alert>}
           <FeatureDataState {...resource} onRetry={resource.refresh} empty={!resource.loading && !resource.error && !items.length} emptyMessage="You're all caught up.">
@@ -43,7 +44,7 @@ export default function NotificationPanel() {
                   <Typography fontWeight={n.status === 'unread' ? 700 : 500} color={n.type === 'warning' ? 'warning.main' : 'text.primary'}>{n.title}</Typography>
                   <Typography variant="body2" sx={{ overflowWrap: 'anywhere' }}>{n.message}</Typography>
                   <Typography variant="caption" color="text.secondary">{new Date(n.createdAt).toLocaleString()}</Typography>
-                  {n.status === 'unread' && <Button size="small" disabled={busy} sx={{ alignSelf: 'flex-start' }} onClick={() => perform(() => markRead(n.id), () => setReadIds((ids) => [...ids, n.id]))}>Mark as read</Button>}
+                  {n.status === 'unread' && <Button size="small" variant="text" disabled={busy} sx={{ alignSelf: 'flex-start' }} onClick={() => perform(() => markRead(n.id), () => setReadIds((ids) => [...ids, n.id]))}>Mark as Read</Button>}
                 </Stack>
               </ListItem><Divider />
             </Box>)}</List></Box>

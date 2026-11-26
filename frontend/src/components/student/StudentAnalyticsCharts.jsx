@@ -21,6 +21,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { displayLabel } from '../../theme';
 import { getCurrentUser } from '../../api/client';
 import { getStudentAnalytics } from '../../api/analytics';
 
@@ -39,11 +40,18 @@ function isUnauthorized(error) {
   return /\b401\b|\b403\b|unauthori[sz]ed|forbidden/i.test(error?.message ?? '');
 }
 
+const PLOT_HEIGHT = 204;
+
+function formatAxisLabel(value) {
+  const label = String(value);
+  return label.length > 14 ? label.slice(0, 13) + '\u2026' : label;
+}
+
 function ChartPanel({ title, subtitle, children }) {
   return (
-    <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, border: 1, borderColor: 'divider', borderRadius: 3, height: '100%', minHeight: 340 }}>
-      <Typography variant="h6" fontWeight={800}>{title}</Typography>
-      {subtitle && <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>{subtitle}</Typography>}
+    <Paper elevation={0} sx={{ p: 1.5, border: 1, borderColor: 'divider', height: '100%' }}>
+      <Typography variant="h6" sx={{ fontSize: 15 }}>{title}</Typography>
+      {subtitle && <Typography variant="caption" component="p" color="text.secondary">{subtitle}</Typography>}
       {children}
     </Paper>
   );
@@ -97,8 +105,8 @@ export default function StudentAnalyticsCharts() {
       : []
   ), [analytics]);
 
-  const trendChartWidth = trend.length > 5 ? Math.max(480, trend.length * 88) : '100%';
-  const categoryChartWidth = byCategory.length > 4 ? Math.max(420, byCategory.length * 100) : '100%';
+  const trendMinWidth = 110 + trend.length * 82;
+  const categoryMinWidth = 56 + byCategory.length * 88;
 
   if (loading) {
     return (
@@ -123,32 +131,32 @@ export default function StudentAnalyticsCharts() {
   }
 
   return (
-    <Grid container spacing={2.5}>
+    <Grid container spacing={2}>
       <Grid size={{ xs: 12, lg: 7 }}>
-        <ChartPanel title="Performance Over Time" subtitle="Recorded assessment scores in chronological order">
+        <ChartPanel title="Performance Over Time" subtitle="Recorded assessment scores by date">
           {trend.length ? (
-            <Box sx={{ width: '100%', height: 260, mt: 2, overflowX: 'auto', overflowY: 'hidden' }} role="group" aria-label="Line chart of recorded assessment scores over time">
-              <Box sx={{ width: trendChartWidth, height: '100%' }}>
+            <Box sx={{ width: '100%', mt: 1, overflowX: 'auto' }} role="group" aria-label="Line chart of recorded assessment scores over time">
+              <Box sx={{ minWidth: trendMinWidth, height: PLOT_HEIGHT }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={trend} margin={{ top: 8, right: 16, left: -16, bottom: 30 }} accessibilityLayer>
+                  <LineChart data={trend} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} accessibilityLayer>
                     <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
                     <XAxis
                       dataKey="name"
                       axisLine={false}
                       tickLine={false}
                       interval={0}
-                      angle={trend.length > 5 ? -25 : 0}
-                      textAnchor={trend.length > 5 ? 'end' : 'middle'}
-                      height={trend.length > 5 ? 55 : 30}
-                      tickFormatter={(value) => String(value).length > 14 ? `${String(value).slice(0, 13)}…` : value}
-                      tick={{ fill: theme.palette.text.secondary, fontSize: 10 }}
+                      padding={{ left: 35, right: 35 }}
+                      height={24}
+                      tickFormatter={formatAxisLabel}
+                      tick={{ fill: theme.palette.text.secondary, fontSize: 11 }}
                     />
                     <YAxis
                       domain={[0, 100]}
+                      width={52}
                       axisLine={false}
                       tickLine={false}
                       tick={{ fill: theme.palette.text.secondary, fontSize: 11 }}
-                      label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', fill: theme.palette.text.secondary }}
+                      label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', fontSize: 11, fill: theme.palette.text.secondary }}
                     />
                     <Tooltip
                       formatter={(value) => [`${value}%`, 'Score']}
@@ -168,7 +176,7 @@ export default function StudentAnalyticsCharts() {
               </Box>
             </Box>
           ) : (
-            <Typography color="text.secondary" sx={{ mt: 3 }}>No recorded performance trend is available yet.</Typography>
+            <Typography color="text.secondary" sx={{ mt: 1.5 }}>No recorded performance trend is available yet.</Typography>
           )}
         </ChartPanel>
       </Grid>
@@ -176,20 +184,22 @@ export default function StudentAnalyticsCharts() {
       <Grid size={{ xs: 12, lg: 5 }}>
         <ChartPanel title="Category Mastery" subtitle="Average score by assessment category">
           {byCategory.length ? (
-            <Box sx={{ width: '100%', height: 260, mt: 2, overflowX: 'auto', overflowY: 'hidden' }} role="group" aria-label="Bar chart of average score by assessment category">
-              <Box sx={{ width: categoryChartWidth, height: '100%' }}>
+            <Box sx={{ width: '100%', mt: 1, overflowX: 'auto' }} role="group" aria-label="Bar chart of average score by assessment category">
+              <Box sx={{ minWidth: categoryMinWidth, height: PLOT_HEIGHT }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={byCategory} margin={{ top: 8, right: 8, left: -18, bottom: 8 }} accessibilityLayer>
+                  <BarChart data={byCategory} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} accessibilityLayer>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme.palette.divider} />
-                    <XAxis dataKey="type" axisLine={false} tickLine={false} interval={0} tick={{ fill: theme.palette.text.secondary, fontSize: 10 }} />
+                    <XAxis dataKey="type" axisLine={false} tickLine={false} interval={0} height={24} tickFormatter={(value) => formatAxisLabel(displayLabel(value))} tick={{ fill: theme.palette.text.secondary, fontSize: 11 }} />
                     <YAxis
                       domain={[0, 100]}
+                      width={52}
                       axisLine={false}
                       tickLine={false}
                       tick={{ fill: theme.palette.text.secondary, fontSize: 11 }}
-                      label={{ value: 'Average (%)', angle: -90, position: 'insideLeft', fill: theme.palette.text.secondary }}
+                      label={{ value: 'Average (%)', angle: -90, position: 'insideLeft', fontSize: 11, fill: theme.palette.text.secondary }}
                     />
                     <Tooltip
+                      labelFormatter={displayLabel}
                       formatter={(value) => [`${value}%`, 'Average']}
                       contentStyle={{ border: 0, borderRadius: 12, boxShadow: theme.shadows[4] }}
                     />
@@ -199,7 +209,7 @@ export default function StudentAnalyticsCharts() {
               </Box>
             </Box>
           ) : (
-            <Typography color="text.secondary" sx={{ mt: 3 }}>No category performance data is available yet.</Typography>
+            <Typography color="text.secondary" sx={{ mt: 1.5 }}>No category performance data is available yet.</Typography>
           )}
         </ChartPanel>
       </Grid>

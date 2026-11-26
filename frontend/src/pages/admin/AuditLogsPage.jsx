@@ -1,3 +1,4 @@
+import { displayLabel } from '../../theme';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -32,13 +33,7 @@ function isUnauthorized(error) {
 }
 
 function readableAction(action) {
-  if (action == null || String(action).trim() === '') return 'Unknown action';
-  return String(action)
-    .trim()
-    .split(/[_\s]+/)
-    .filter(Boolean)
-    .map((word) => `${word[0].toUpperCase()}${word.slice(1).toLowerCase()}`)
-    .join(' ');
+  return displayLabel(action) || 'Unknown Action';
 }
 
 function safeDateValue(timestamp) {
@@ -143,23 +138,23 @@ export default function AuditLogsPage() {
 
   return (
     <Box>
-      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 3.5 }}>
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 2 }}>
         <Box sx={{ p: 1.2, display: 'flex', borderRadius: 2, bgcolor: 'primary.light', color: 'primary.main' }}>
           <HistoryOutlined />
         </Box>
         <Box>
-          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.6px' }}>Audit Logs</Typography>
-          <Typography color="text.secondary" sx={{ mt: 0.4 }}>Monitor and review recorded activities across the EduTrack system.</Typography>
+          <Typography variant="pageTitle">Audit Logs</Typography>
+          <Typography variant="pageDescription" color="text.secondary">Monitor and review recorded activities across the EduTrack system.</Typography>
         </Box>
       </Stack>
 
       {loadError && (
-        <Alert severity="error" sx={{ mb: 2.5 }} action={<Button color="inherit" size="small" onClick={loadLogs} disabled={loading}>Retry</Button>}>
+        <Alert severity="error" sx={{ mb: 2 }} action={<Button color="inherit" size="small" onClick={loadLogs} disabled={loading}>Retry</Button>}>
           {loadError}
         </Alert>
       )}
 
-      <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2.5 }, mb: 2.5, border: 1, borderColor: 'divider', borderRadius: 3 }}>
+      <Paper elevation={0} sx={{ p: 2, mb: 2, border: 1, borderColor: 'divider' }}>
         <Grid container spacing={1.5} sx={{ alignItems: 'center' }}>
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField
@@ -173,7 +168,7 @@ export default function AuditLogsPage() {
             <FormControl fullWidth size="small" disabled={loading || Boolean(loadError)}>
               <InputLabel id="audit-action-filter-label">Action</InputLabel>
               <Select labelId="audit-action-filter-label" label="Action" value={actionFilter} onChange={(event) => updateAction(event.target.value)}>
-                <MenuItem value="all">All actions</MenuItem>
+                <MenuItem value="all">All Actions</MenuItem>
                 {actions.map((action) => <MenuItem key={action} value={action}>{readableAction(action)}</MenuItem>)}
               </Select>
             </FormControl>
@@ -182,7 +177,7 @@ export default function AuditLogsPage() {
             <FormControl fullWidth size="small" disabled={loading || Boolean(loadError)}>
               <InputLabel id="audit-role-filter-label">User Role</InputLabel>
               <Select labelId="audit-role-filter-label" label="User Role" value={roleFilter} onChange={(event) => updateRole(event.target.value)}>
-                <MenuItem value="all">All roles</MenuItem>
+                <MenuItem value="all">All Roles</MenuItem>
                 {roles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
               </Select>
             </FormControl>
@@ -190,27 +185,27 @@ export default function AuditLogsPage() {
         </Grid>
       </Paper>
 
-      <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, overflowX: 'auto' }}>
+      <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider', overflowX: 'auto' }}>
         <Table sx={{ minWidth: 900 }} aria-label="System audit logs">
-          <TableHead sx={{ bgcolor: 'action.hover' }}>
+          <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 800, whiteSpace: 'nowrap' }}>Timestamp</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>Action</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>Performed By</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>User Role</TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>Details</TableCell>
+              <TableCell>Timestamp</TableCell>
+              <TableCell>Action</TableCell>
+              <TableCell>Performed By</TableCell>
+              <TableCell>User Role</TableCell>
+              <TableCell>Details</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 7 }}>
+                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                   <CircularProgress size={28} aria-label="Loading audit logs" />
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Loading audit records...</Typography>
                 </TableCell>
               </TableRow>
             ) : loadError ? (
-              <TableRow><TableCell colSpan={5} align="center" sx={{ py: 6 }}><Typography color="text.secondary">Audit records are unavailable.</Typography></TableCell></TableRow>
+              <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4 }}><Typography color="text.secondary">Audit records are unavailable.</Typography></TableCell></TableRow>
             ) : visibleLogs.length ? visibleLogs.map((record, index) => (
               <TableRow key={record.id ?? `${record.timestamp ?? 'audit'}-${page}-${index}`} hover>
                 <TableCell sx={{ whiteSpace: 'nowrap', fontSize: '0.8rem' }}>{formatTimestamp(record.timestamp)}</TableCell>
@@ -223,8 +218,8 @@ export default function AuditLogsPage() {
               </TableRow>
             )) : (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 7 }}>
-                  <HistoryOutlined color="disabled" sx={{ fontSize: 42 }} />
+                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                  <HistoryOutlined color="disabled" sx={{ fontSize: 32 }} />
                   <Typography fontWeight={700} sx={{ mt: 1 }}>
                     {logs.length ? 'No audit records match your search or filters.' : 'No audit logs available yet.'}
                   </Typography>

@@ -1,3 +1,4 @@
+import { metricIconSx, metricValueSx } from '../../theme';
 import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
@@ -32,13 +33,13 @@ import { getTeacherAnalytics } from '../../api/analytics';
 
 function MetricCard({ label, value, icon, color }) {
   return (
-    <Card elevation={0} sx={{ height: '100%', border: 1, borderColor: 'divider', borderRadius: 3 }}>
-      <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+    <Card elevation={0} sx={{ height: '100%', border: 1, borderColor: 'divider' }}>
+      <CardContent>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-          <Box sx={{ p: 1.4, display: 'flex', borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>{icon}</Box>
+          <Box sx={metricIconSx(color)}>{icon}</Box>
           <Box>
-            <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</Typography>
-            <Typography variant="h4" fontWeight={800}>{value ?? '—'}</Typography>
+            <Typography variant="subtitle2" color="text.secondary">{label}</Typography>
+            <Typography sx={metricValueSx}>{value ?? '—'}</Typography>
           </Box>
         </Stack>
       </CardContent>
@@ -131,15 +132,15 @@ export default function TeacherDashboardPage() {
   const totals = analytics?.totals ?? {};
   const classes = Array.isArray(analytics?.classes) ? analytics.classes.filter(Boolean) : [];
   const chartClasses = classes.filter((item) => item.name && percentageOrNull(item.average) !== null);
-  const chartHeight = Math.max(290, chartClasses.length * 48);
+  const chartHeight = Math.max(232, chartClasses.length * 48);
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: { xs: 'flex-start', sm: 'flex-end' }, justifyContent: 'space-between', mb: 3.5 }}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: { xs: 'flex-start', sm: 'flex-end' }, justifyContent: 'space-between', mb: 2 }}>
         <Box>
-          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.7px' }}>Instructor Insights</Typography>
-          <Typography variant="body2" color="primary.main" fontWeight={700} sx={{ mt: 0.5 }}>{teacherGreeting(user)}</Typography>
-          <Typography color="text.secondary" sx={{ mt: 0.5 }}>Class performance and student engagement at a glance.</Typography>
+          <Typography variant="pageTitle">Instructor Insights</Typography>
+          <Typography variant="body2" color="primary.main" fontWeight={600}>{teacherGreeting(user)}</Typography>
+          <Typography variant="pageDescription" color="text.secondary">Class performance and student engagement at a glance.</Typography>
         </Box>
         <Button component={RouterLink} to="/dashboard/attendance" startIcon={<EventAvailableOutlined />} sx={{ borderRadius: 2, fontWeight: 500
          }}>
@@ -149,7 +150,7 @@ export default function TeacherDashboardPage() {
 
       {error && <Alert severity="error" sx={{ mb: 3 }} action={<Button color="inherit" size="small" onClick={loadAnalytics} disabled={loading}>Retry</Button>}>{error}</Alert>}
 
-      <Grid container spacing={2.5}>
+      <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 4 }}>
           <MetricCard label="Active Classes" value={totals.classes} icon={<SchoolOutlined />} color="primary" />
         </Grid>
@@ -161,10 +162,10 @@ export default function TeacherDashboardPage() {
         </Grid>
 
         <Grid size={{ xs: 12, lg: 7 }}>
-          <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, border: 1, borderColor: 'divider', borderRadius: 3, minHeight: 380 }}>
-            <Typography variant="h6" fontWeight={800}>Class Achievement</Typography>
+          <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider' }}>
+            <Typography variant="h6">Class Achievement</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>Average grade by class</Typography>
-            <Box sx={{ height: 290, mt: 2, overflowY: chartClasses.length > 6 ? 'auto' : 'hidden' }}>
+            <Box sx={{ height: 232, mt: 1.5, overflowY: chartHeight > 232 ? 'auto' : 'hidden' }}>
               {loading ? <Box sx={{ height: '100%', display: 'grid', placeItems: 'center' }}><CircularProgress aria-label="Loading class achievement" /></Box> : error ? (
                 <Typography color="text.secondary" sx={{ p: 2 }}>Class performance data is unavailable until analytics load successfully.</Typography>
               ) : classes.length === 0 ? (
@@ -172,7 +173,7 @@ export default function TeacherDashboardPage() {
               ) : chartClasses.length === 0 ? (
                 <Typography color="text.secondary" sx={{ p: 2 }}>Average grade data is not available for your classes yet.</Typography>
               ) : (
-                <Box sx={{ height: chartHeight, minHeight: 290 }}>
+                <Box sx={{ height: chartHeight, minHeight: 232 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartClasses} layout="vertical" margin={{ top: 8, right: 18, left: 8, bottom: 4 }}>
                       <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={theme.palette.divider} />
@@ -189,17 +190,17 @@ export default function TeacherDashboardPage() {
         </Grid>
 
         <Grid size={{ xs: 12, lg: 5 }}>
-          <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, border: 1, borderColor: 'divider', borderRadius: 3, height: '100%', minHeight: 380 }}>
-            <Typography variant="h6" fontWeight={800}>Class Snapshot</Typography>
+          <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', height: '100%' }}>
+            <Typography variant="h6">Class Snapshot</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4, mb: 2 }}>Passing and attendance rates for your classes</Typography>
             {loading ? <Box sx={{ height: 250, display: 'grid', placeItems: 'center' }}><CircularProgress aria-label="Loading class snapshot" /></Box> : error ? (
               <Typography color="text.secondary">Class snapshots are unavailable until analytics load successfully.</Typography>
             ) : classes.length ? (
-              <Stack spacing={2.5}>
+              <Stack spacing={2}>
                 {classes.map((item) => (
                   <Box key={item.classId ?? item.name} sx={{ p: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
                     <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline', justifyContent: 'space-between', mb: 1.8 }}>
-                      <Typography fontWeight={800} sx={{ overflowWrap: 'anywhere' }}>{item.name || 'Class'}</Typography>
+                      <Typography fontWeight={700} sx={{ overflowWrap: 'anywhere' }}>{item.name || 'Class'}</Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>Average {percentageOrNull(item.average) === null ? '—' : `${percentageOrNull(item.average)}%`}</Typography>
                     </Stack>
                     <Stack spacing={1.6}>

@@ -1,3 +1,5 @@
+import { displayLabel } from '../../theme';
+import VisibilityOutlined from '@mui/icons-material/VisibilityOutlined';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -62,8 +64,7 @@ const sameWeights = (a = {}, b = {}) =>
   Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([k, v]) => Number(b[k]) === Number(v));
 
 function statusLabel(status) {
-  if (!status) return 'Unknown';
-  return `${status.charAt(0).toUpperCase()}${status.slice(1)}`;
+  return displayLabel(status) || 'Unknown';
 }
 
 export default function TeacherClassesPage() {
@@ -225,10 +226,10 @@ export default function TeacherClassesPage() {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', mb: 3.5 }}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', mb: 2 }}>
         <Box>
-          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.6px' }}>My Classes</Typography>
-          <Typography color="text.secondary" sx={{ mt: 0.5 }}>Manage your assigned classroom sections.</Typography>
+          <Typography variant="pageTitle">My Classes</Typography>
+          <Typography variant="pageDescription" color="text.secondary">Manage your assigned classroom sections.</Typography>
         </Box>
         <Button startIcon={<AddOutlined />} onClick={openCreateDialog} sx={{ alignSelf: { xs: 'flex-start', sm: 'auto' }, borderRadius: 2, fontWeight: 700, px: 2.5 }}>
           New Class
@@ -236,12 +237,12 @@ export default function TeacherClassesPage() {
       </Stack>
 
       {loadError && (
-        <Alert severity="error" sx={{ mb: 2.5 }} action={<Button color="inherit" size="small" onClick={loadClasses}>Retry</Button>}>
+        <Alert severity="error" sx={{ mb: 2 }} action={<Button color="inherit" size="small" onClick={loadClasses}>Retry</Button>}>
           {loadError}
         </Alert>
       )}
 
-      <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: 2.5, border: 1, borderColor: 'divider', borderRadius: 3 }}>
+      <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: 2, border: 1, borderColor: 'divider' }}>
         <Stack direction={{ xs: 'column', lg: 'row' }} spacing={1.5} sx={{ alignItems: { lg: 'center' } }}>
           <TextField
             size="small"
@@ -259,35 +260,44 @@ export default function TeacherClassesPage() {
               onChange={(event) => setStatusFilter(event.target.value)}
               sx={{ borderRadius: 2, bgcolor: 'background.default' }}
             >
-              <MenuItem value="all">All statuses</MenuItem>
+              <MenuItem value="all">All Statuses</MenuItem>
               <MenuItem value="active">Active</MenuItem>
               <MenuItem value="completed">Completed</MenuItem>
             </Select>
           </FormControl>
           <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
             <Chip label={`${activeCount} Active`} size="small" color="success" variant="outlined" />
-            <Chip label={`${completedCount} Completed`} size="small" variant="outlined" />
+            <Chip color="success" label={`${completedCount} Completed`} size="small" variant="outlined" />
             <Chip label={`${filteredClasses.length} Shown`} size="small" color="primary" variant="outlined" />
           </Stack>
         </Stack>
       </Paper>
 
-      <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, overflowX: 'auto' }}>
+      <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider', overflowX: 'auto' }}>
         <Table sx={{ minWidth: 760 }} aria-label="Teacher classes">
-          <TableHead sx={{ bgcolor: 'action.hover' }}>
+          <TableHead>
             <TableRow>
+<<<<<<< Updated upstream
               <TableCell sx={{ fontWeight: 800 }}>Class</TableCell>
               <TableCell sx={{ fontWeight: 800 }}>Section</TableCell>
               <TableCell sx={{ fontWeight: 800 }}>Schedule</TableCell>
               <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
               <TableCell align="center" sx={{ fontWeight: 800 }}>Enrolled</TableCell>
               <TableCell align="right" sx={{ fontWeight: 800 }}>Actions</TableCell>
+=======
+              <TableCell>Class Name</TableCell>
+              <TableCell>Section</TableCell>
+              <TableCell>Schedule</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell align="right">Enrolled</TableCell>
+              <TableCell align="right">Roster</TableCell>
+>>>>>>> Stashed changes
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 7 }}>
+                <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                   <CircularProgress size={28} aria-label="Loading classes" />
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Loading your classes…</Typography>
                 </TableCell>
@@ -313,18 +323,19 @@ export default function TeacherClassesPage() {
                     <Chip
                       label={statusLabel(item.status)}
                       size="small"
-                      color={isCompleted ? 'default' : item.status === 'active' ? 'success' : 'primary'}
+                      color={isCompleted || item.status === 'active' ? 'success' : 'default'}
                       variant={isCompleted ? 'outlined' : 'filled'}
                       sx={{ fontWeight: 700 }}
                     />
                   </TableCell>
-                  <TableCell align="center">
-                    <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', justifyContent: 'center' }}>
+                  <TableCell align="right">
+                    <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
                       <PeopleAltOutlined fontSize="small" color="action" />
                       <Typography fontWeight={800}>{item.studentCount ?? 0}</Typography>
                     </Stack>
                   </TableCell>
                   <TableCell align="right">
+<<<<<<< Updated upstream
                     <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
                       <Button
                         size="small"
@@ -342,13 +353,18 @@ export default function TeacherClassesPage() {
                         View Roster
                       </Button>
                     </Stack>
+=======
+                    <Button startIcon={<VisibilityOutlined />} size="small" variant="outlined" onClick={() => openRoster(item)} sx={{ borderRadius: 2, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      View Roster
+                    </Button>
+>>>>>>> Stashed changes
                   </TableCell>
                 </TableRow>
               );
             }) : (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
-                  <ClassOutlined color="disabled" sx={{ fontSize: 42 }} />
+                <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                  <ClassOutlined color="disabled" sx={{ fontSize: 32 }} />
                   <Typography fontWeight={700} sx={{ mt: 1 }}>
                     {loadError ? 'Classes could not be loaded.' : classes.length ? 'No classes match your filters.' : 'No classes assigned yet.'}
                   </Typography>
@@ -370,10 +386,15 @@ export default function TeacherClassesPage() {
       <Dialog open={createOpen} onClose={closeCreateDialog} fullWidth maxWidth="sm">
         <Box component="form" onSubmit={handleCreate} noValidate>
           <DialogTitle sx={{ pb: 1 }}>
+<<<<<<< Updated upstream
             <Typography variant="h6" component="div" fontWeight={800}>{editingClass ? 'Edit Class' : 'Create New Class'}</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>
               {editingClass ? `Update the details of ${editingClass.sectionCode}.` : 'Add a class to your teaching schedule.'}
             </Typography>
+=======
+            <Typography variant="h6" component="div">Create New Class</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>Add a class to your teaching schedule.</Typography>
+>>>>>>> Stashed changes
           </DialogTitle>
           <DialogContent>
             <Stack spacing={2} sx={{ pt: 1 }}>
@@ -447,8 +468,8 @@ export default function TeacherClassesPage() {
                 slotProps={{ htmlInput: { min: 1, max: 100 } }} />
             </Stack>
           </DialogContent>
-          <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
-            <Button onClick={closeCreateDialog} disabled={isSubmitting} color="inherit">Cancel</Button>
+          <DialogActions>
+            <Button variant="text" onClick={closeCreateDialog} disabled={isSubmitting} color="inherit">Cancel</Button>
             <Button
               type="submit"
               startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : editingClass ? <EditOutlined /> : <AddOutlined />}

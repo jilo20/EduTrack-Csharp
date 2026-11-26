@@ -1,3 +1,4 @@
+import { displayLabel, metricIconSx, metricValueSx } from '../../theme';
 import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
@@ -50,42 +51,44 @@ function SummaryCard({ title, value, detail, icon, color, progress, to }) {
       elevation={0}
       sx={{
         height: '100%',
+        minHeight: 96,
         border: 1,
         borderColor: 'divider',
-        borderRadius: 3,
         transition: 'transform 180ms ease, box-shadow 180ms ease',
         '&:hover': to ? { transform: 'translateY(-2px)', boxShadow: 2 } : undefined,
       }}
     >
-      <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 2 }}>
-          <Box sx={{ p: 1.25, display: 'flex', borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>{icon}</Box>
-          <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{title}</Typography>
+      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center' }}>
+          <Box sx={metricIconSx(color)}>{icon}</Box>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13, fontWeight: 500 }}>{title}</Typography>
+            <Typography sx={{ ...metricValueSx, fontWeight: 600 }}>{value}</Typography>
+          </Box>
         </Stack>
-        <Typography variant="h4" fontWeight={800}>{value}</Typography>
-        {detail && <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{detail}</Typography>}
+        {detail && <Typography variant="caption" component="p" color="text.secondary" sx={{ mt: 0.5 }}>{detail}</Typography>}
         {Number.isFinite(progress) && (
           <LinearProgress
             variant="determinate"
             value={Math.min(100, Math.max(0, progress))}
             color={color}
-            sx={{ mt: 1.6, height: 7, borderRadius: 4, bgcolor: 'action.hover', '& .MuiLinearProgress-bar': { borderRadius: 4 } }}
+            sx={{ mt: 0.5, height: 4, borderRadius: 1, bgcolor: 'action.hover', '& .MuiLinearProgress-bar': { borderRadius: 1 } }}
           />
         )}
       </CardContent>
     </Card>
   );
 
-  return to ? <Box component={RouterLink} to={to} sx={{ display: 'block', height: '100%', color: 'inherit', textDecoration: 'none' }}>{card}</Box> : card;
+  return to ? <Box component={RouterLink} to={to} sx={{ display: 'block', height: '100%', color: 'inherit', textDecoration: 'none', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2, borderRadius: 1 } }}>{card}</Box> : card;
 }
 
-function SectionPanel({ title, subtitle, action, children, sx }) {
+function SectionPanel({ title, subtitle, action, children }) {
   return (
-    <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, overflow: 'hidden', height: '100%', ...sx }}>
-      <Box sx={{ p: { xs: 2, sm: 2.5 }, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+    <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', height: '100%', minWidth: 0 }}>
+      <Box sx={{ p: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
         <Box sx={{ minWidth: 0 }}>
-          <Typography variant="h6" fontWeight={800}>{title}</Typography>
-          {subtitle && <Typography variant="body2" color="text.secondary" sx={{ mt: 0.35 }}>{subtitle}</Typography>}
+          <Typography variant="h6" sx={{ fontSize: 15 }}>{title}</Typography>
+          {subtitle && <Typography variant="caption" component="p" color="text.secondary">{subtitle}</Typography>}
         </Box>
         {action}
       </Box>
@@ -160,11 +163,9 @@ export default function StudentDashboardPage() {
 
   return (
     <Box>
-      <Box sx={{ mb: 3.5 }}>
-        <Typography variant="h4" fontWeight={800} color="primary" sx={{ letterSpacing: '-0.7px' }}>
-          Hello, {firstName}!
-        </Typography>
-        <Typography color="text.secondary" sx={{ mt: 0.5 }}>Your personalized academic performance and growth tracker.</Typography>
+      <Box sx={{ mb: 1.5 }}>
+        <Typography variant="pageTitle">Student Dashboard</Typography>
+        <Typography variant="pageDescription" color="text.secondary">Welcome, {firstName}. Review your grades, attendance, and assessments.</Typography>
       </Box>
 
       {dashboardError && <Alert severity="error" sx={{ mb: 3 }} action={<Button color="inherit" size="small" onClick={loadDashboard} disabled={loading}>Retry</Button>}>{dashboardError}</Alert>}
@@ -173,8 +174,8 @@ export default function StudentDashboardPage() {
         <Box sx={{ minHeight: 280, display: 'grid', placeItems: 'center' }}><CircularProgress aria-label="Loading student dashboard" /></Box>
       ) : dashboardError ? null : (
         <>
-          <Grid container spacing={2.5} sx={{ mb: 2.5 }}>
-            <Grid size={{ xs: 12, sm: 6, xl: 3 }}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
               <SummaryCard
                 title="General Weighted Average"
                 value={equivalentGrade ?? '—'}
@@ -184,7 +185,7 @@ export default function StudentDashboardPage() {
                 to="/dashboard/performance"
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, xl: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
               <SummaryCard
                 title="Attendance Rate"
                 value={attendanceRate === null ? '—' : `${attendanceRate}%`}
@@ -195,7 +196,7 @@ export default function StudentDashboardPage() {
                 to="/dashboard/my-attendance"
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, xl: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
               <SummaryCard
                 title="Enrolled Classes"
                 value={classes.length}
@@ -205,7 +206,7 @@ export default function StudentDashboardPage() {
                 to="/dashboard/performance"
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, xl: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
               <SummaryCard
                 title="Pending Assessments"
                 value={assessments === null ? '—' : pendingAssessments.length}
@@ -218,67 +219,67 @@ export default function StudentDashboardPage() {
           </Grid>
 
           {/* 11.6: shared charts component (loads its own analytics, has its own loading/error state). */}
-          <Box sx={{ mb: 2.5 }}><StudentAnalyticsCharts /></Box>
+          <Box sx={{ mb: 2 }}><StudentAnalyticsCharts /></Box>
 
-          <Grid container spacing={2.5}>
-            <Grid size={{ xs: 12, lg: 7 }}>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, lg: 6 }}>
               <SectionPanel
                 title="My Classes"
                 subtitle="Your enrolled course sections"
-                action={<Button component={RouterLink} to="/dashboard/performance" variant="outlined" size="small" sx={{ borderRadius: 2, flexShrink: 0 }}>View Performance</Button>}
+                action={<Button component={RouterLink} to="/dashboard/performance" variant="outlined">View Performance</Button>}
               >
                 {classes.length ? classes.map((item, index) => (
                   <Box key={item.id ?? item.sectionCode ?? item.name}>
-                    <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', p: { xs: 2, sm: 2.5 } }}>
-                      <Avatar sx={{ bgcolor: 'primary.light', color: 'primary.dark', fontWeight: 800 }}>{item.name?.[0] ?? 'C'}</Avatar>
+                    <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', px: 1.5, py: 1 }}>
+                      <Avatar sx={{ width: 32, height: 32, flexShrink: 0, bgcolor: 'primary.light', color: 'primary.dark', fontWeight: 600, fontSize: 14 }}>{item.name?.[0] ?? 'C'}</Avatar>
                       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                        <Typography fontWeight={700} noWrap>{item.name || 'Class'}</Typography>
-                        <Typography variant="body2" color="text.secondary" noWrap>
+                        <Typography variant="body2" fontWeight={500} sx={{ overflowWrap: 'anywhere' }}>{item.name || 'Class'}</Typography>
+                        <Typography variant="caption" component="p" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
                           {[item.sectionCode, typeof item.teacher === 'string' ? item.teacher : item.teacher?.name].filter(Boolean).join(' · ') || 'Class details unavailable'}
                         </Typography>
                       </Box>
-                      {item.grade != null && <Typography variant="h6" color="primary" fontWeight={800} sx={{ flexShrink: 0 }}>{item.grade}%</Typography>}
+                      {item.grade != null && <Typography variant="body2" color="primary" fontWeight={600} sx={{ flexShrink: 0 }}>{item.grade}%</Typography>}
                     </Stack>
                     {index < classes.length - 1 && <Divider />}
                   </Box>
-                )) : <Typography color="text.secondary" sx={{ p: 2.5 }}>You do not have any enrolled classes yet.</Typography>}
+                )) : <Typography color="text.secondary" sx={{ p: 1.5 }}>You do not have any enrolled classes yet.</Typography>}
               </SectionPanel>
             </Grid>
 
-            <Grid size={{ xs: 12, lg: 5 }}>
+            <Grid size={{ xs: 12, lg: 6 }}>
               <SectionPanel
                 title="Assessments"
                 subtitle="Pending work and recent results"
-                action={<Button component={RouterLink} to="/dashboard/assessments" variant="outlined" size="small" sx={{ borderRadius: 2, flexShrink: 0 }}>View All</Button>}
+                action={<Button component={RouterLink} to="/dashboard/assessments" variant="outlined">View All</Button>}
               >
-                {assessmentsUnavailable && <Alert severity="info" sx={{ mx: 2.5, mb: 1 }}>Assessment information is currently unavailable.</Alert>}
+                {assessmentsUnavailable && <Alert severity="info" sx={{ mx: 1.5, mb: 1 }}>Assessment information is currently unavailable.</Alert>}
                 {pendingAssessments.length ? pendingAssessments.slice(0, 3).map((item, index) => (
                   <Box key={item.id ?? `${item.title}-${index}`}>
-                    <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between', p: 2.5 }}>
+                    <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between', p: 1.5 }}>
                       <Box sx={{ minWidth: 0 }}>
-                        <Typography fontWeight={700} noWrap>{item.title || 'Assessment'}</Typography>
-                        <Typography variant="body2" color="text.secondary" noWrap>{item.className || item.type || 'Class details unavailable'}</Typography>
+                        <Typography variant="body2" fontWeight={500} sx={{ overflowWrap: 'anywhere' }}>{item.title || 'Assessment'}</Typography>
+                        <Typography variant="caption" component="p" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>{item.className || item.type || 'Class details unavailable'}</Typography>
                       </Box>
-                      <Chip label={getAssessmentStatus(item)} size="small" color="warning" variant="outlined" sx={{ fontWeight: 700, flexShrink: 0 }} />
+                      <Chip label={displayLabel(getAssessmentStatus(item))} size="small" color="warning" variant="outlined" sx={{ height: 'auto', minHeight: 24, maxWidth: '45%', flexShrink: 0, '& .MuiChip-label': { whiteSpace: 'normal', overflowWrap: 'anywhere' } }} />
                     </Stack>
                     {index < Math.min(pendingAssessments.length, 3) - 1 && <Divider />}
                   </Box>
                 )) : assessments === null ? null : assessments.length ? (
-                  <Typography color="text.secondary" sx={{ p: 2.5 }}>No pending assessments. Keep up the good work!</Typography>
-                ) : <Typography color="text.secondary" sx={{ p: 2.5 }}>No assessment records are available yet.</Typography>}
+                  <Typography color="text.secondary" sx={{ p: 1.5 }}>No pending assessments.</Typography>
+                ) : <Typography color="text.secondary" sx={{ p: 1.5 }}>No assessment records are available yet.</Typography>}
 
                 {latestScores.length > 0 && (
                   <>
                     <Divider />
-                    <Box sx={{ px: 2.5, pt: 2 }}><Typography variant="subtitle2" color="text.secondary" fontWeight={800}>LATEST SCORES</Typography></Box>
+                    <Box sx={{ px: 1.5, pt: 1 }}><Typography variant="subtitle2" component="h3" color="text.secondary">Latest Scores</Typography></Box>
                     {latestScores.slice(0, 2).map((item, index) => (
                       <Box key={`${item.assessment ?? 'score'}-${index}`}>
-                        <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between', p: 2.5, pt: 1.5 }}>
+                        <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between', px: 1.5, py: 1 }}>
                           <Box sx={{ minWidth: 0 }}>
-                            <Typography variant="body2" fontWeight={700} noWrap>{item.assessment || 'Assessment'}</Typography>
-                            <Typography variant="caption" color="text.secondary" noWrap>{item.className || 'Class details unavailable'}</Typography>
+                            <Typography variant="body2" fontWeight={500} sx={{ overflowWrap: 'anywhere' }}>{item.assessment || 'Assessment'}</Typography>
+                            <Typography variant="caption" component="p" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>{item.className || 'Class details unavailable'}</Typography>
                           </Box>
-                          <Typography fontWeight={800} color="primary" sx={{ flexShrink: 0 }}>{item.score ?? '—'} / {item.perfectScore ?? '—'}</Typography>
+                          <Typography fontWeight={600} color="primary" sx={{ flexShrink: 0 }}>{item.score ?? '—'} / {item.perfectScore ?? '—'}</Typography>
                         </Stack>
                         {index < Math.min(latestScores.length, 2) - 1 && <Divider />}
                       </Box>

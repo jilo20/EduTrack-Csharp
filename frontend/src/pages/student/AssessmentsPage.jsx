@@ -1,3 +1,4 @@
+import { displayLabel, metricIconSx, metricValueSx } from '../../theme';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -46,12 +47,12 @@ function statusColor(status) {
 
 function SummaryTile({ label, count, icon, color }) {
   return (
-    <Paper elevation={0} sx={{ p: 2.25, border: 1, borderColor: 'divider', borderRadius: 3, height: '100%' }}>
+    <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', height: '100%' }}>
       <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-        <Box sx={{ p: 1.2, display: 'flex', borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>{icon}</Box>
+        <Box sx={metricIconSx(color)}>{icon}</Box>
         <Box>
           <Typography variant="caption" color="text.secondary" fontWeight={700}>{label}</Typography>
-          <Typography variant="h5" fontWeight={800}>{count}</Typography>
+          <Typography sx={metricValueSx}>{count}</Typography>
         </Box>
       </Stack>
     </Paper>
@@ -114,9 +115,9 @@ export default function AssessmentsPage() {
 
   return (
     <Box>
-      <Box sx={{ mb: 3.5 }}>
-        <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.7px' }}>My Assessments</Typography>
-        <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="pageTitle">My Assessments</Typography>
+        <Typography variant="pageDescription" color="text.secondary">
           View your assessments, scores, and grading status across your enrolled classes.
         </Typography>
       </Box>
@@ -136,13 +137,13 @@ export default function AssessmentsPage() {
         </Box>
       ) : !loadError && (
         <>
-          <Grid container spacing={2} sx={{ mb: 2.5 }}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
             <Grid size={{ xs: 12, sm: 4 }}><SummaryTile label="Total Assessments" count={assessments.length} icon={<AssignmentOutlined />} color="primary" /></Grid>
             <Grid size={{ xs: 12, sm: 4 }}><SummaryTile label="Graded" count={gradedCount} icon={<CheckCircleOutline />} color="success" /></Grid>
             <Grid size={{ xs: 12, sm: 4 }}><SummaryTile label="Pending" count={pendingCount} icon={<AssignmentOutlined />} color="warning" /></Grid>
           </Grid>
 
-          <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2.5 }, mb: 2.5, border: 1, borderColor: 'divider', borderRadius: 3 }}>
+          <Paper elevation={0} sx={{ p: 2, mb: 2, border: 1, borderColor: 'divider' }}>
             <Grid container spacing={1.5} sx={{ alignItems: 'center' }}>
               <Grid size={{ xs: 12, md: 4 }}>
                 <TextField
@@ -155,7 +156,7 @@ export default function AssessmentsPage() {
                 <FormControl fullWidth size="small">
                   <InputLabel id="assessment-class-filter-label">Class</InputLabel>
                   <Select labelId="assessment-class-filter-label" label="Class" value={classFilter} onChange={(event) => setClassFilter(event.target.value)}>
-                    <MenuItem value="all">All classes</MenuItem>
+                    <MenuItem value="all">All Classes</MenuItem>
                     {classes.map((name) => <MenuItem key={name} value={name}>{name}</MenuItem>)}
                   </Select>
                 </FormControl>
@@ -164,8 +165,8 @@ export default function AssessmentsPage() {
                 <FormControl fullWidth size="small">
                   <InputLabel id="assessment-category-filter-label">Category</InputLabel>
                   <Select labelId="assessment-category-filter-label" label="Category" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
-                    <MenuItem value="all">All categories</MenuItem>
-                    {categories.map((category) => <MenuItem key={category} value={category}>{category}</MenuItem>)}
+                    <MenuItem value="all">All Categories</MenuItem>
+                    {categories.map((category) => <MenuItem key={category} value={category}>{displayLabel(category)}</MenuItem>)}
                   </Select>
                 </FormControl>
               </Grid>
@@ -173,24 +174,24 @@ export default function AssessmentsPage() {
                 <FormControl fullWidth size="small">
                   <InputLabel id="assessment-status-filter-label">Status</InputLabel>
                   <Select labelId="assessment-status-filter-label" label="Status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-                    <MenuItem value="all">All statuses</MenuItem>
-                    {statuses.map((status) => <MenuItem key={status} value={status}>{status}</MenuItem>)}
+                    <MenuItem value="all">All Statuses</MenuItem>
+                    {statuses.map((status) => <MenuItem key={status} value={status}>{status === 'Not Graded' ? 'Not Yet Graded' : displayLabel(status)}</MenuItem>)}
                   </Select>
                 </FormControl>
               </Grid>
             </Grid>
           </Paper>
 
-          <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, overflowX: 'auto' }}>
+          <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider', overflowX: 'auto' }}>
             <Table sx={{ minWidth: 820 }} aria-label="Student assessments">
-              <TableHead sx={{ bgcolor: 'action.hover' }}>
+              <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800 }}>Assessment Title</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Class</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Category</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 800 }}>Score</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 800 }}>Perfect Score</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 800 }}>Status</TableCell>
+                  <TableCell>Assessment Title</TableCell>
+                  <TableCell>Class</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell align="right">Score</TableCell>
+                  <TableCell align="right">Maximum Score</TableCell>
+                  <TableCell>Status</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -204,20 +205,20 @@ export default function AssessmentsPage() {
                     <TableRow key={item.id ?? `${item.title}-${index}`} hover>
                       <TableCell><Typography fontWeight={700}>{item.title || 'Untitled assessment'}</Typography></TableCell>
                       <TableCell>{item.className || <Typography variant="body2" color="text.secondary">Class unavailable</Typography>}</TableCell>
-                      <TableCell>{item.type ? <Chip label={item.type} size="small" variant="outlined" sx={{ fontWeight: 700 }} /> : <Typography variant="body2" color="text.secondary">—</Typography>}</TableCell>
-                      <TableCell align="center">
+                      <TableCell>{item.type ? <Chip label={displayLabel(item.type)} size="small" variant="outlined" sx={{ fontWeight: 700 }} /> : <Typography variant="body2" color="text.secondary">—</Typography>}</TableCell>
+                      <TableCell align="right">
                         <Typography variant="body2" fontWeight={hasScore ? 800 : 400} color={hasScore ? 'text.primary' : 'text.secondary'}>
                           {hasScore ? item.score : isPending ? 'Not Yet Graded' : '—'}
                         </Typography>
                       </TableCell>
-                      <TableCell align="center">
+                      <TableCell align="right">
                         <Typography variant="body2" color={item.perfectScore == null ? 'text.secondary' : 'text.primary'}>
                           {item.perfectScore ?? '—'}
                         </Typography>
                       </TableCell>
-                      <TableCell align="center">
+                      <TableCell>
                         <Chip
-                          label={status}
+                          label={status === 'Not Graded' ? 'Not Yet Graded' : displayLabel(status)}
                           size="small"
                           color={statusColor(status)}
                           variant={isGraded ? 'filled' : 'outlined'}
@@ -228,8 +229,8 @@ export default function AssessmentsPage() {
                   );
                 }) : (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 7 }}>
-                      <AssignmentOutlined color="disabled" sx={{ fontSize: 42 }} />
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                      <AssignmentOutlined color="disabled" sx={{ fontSize: 32 }} />
                       <Typography fontWeight={700} sx={{ mt: 1 }}>
                         {assessments.length ? 'No assessments match your search or filters.' : 'No assessments available yet.'}
                       </Typography>

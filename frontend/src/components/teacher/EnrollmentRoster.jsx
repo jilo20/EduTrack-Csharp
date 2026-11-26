@@ -1,3 +1,5 @@
+import RefreshOutlined from '@mui/icons-material/RefreshOutlined';
+import { displayLabel } from '../../theme';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -213,7 +215,7 @@ export default function EnrollmentRoster({ open = false, selectedClass = null, o
                     <Typography variant="subtitle1" fontWeight={800}>Enrolled Students</Typography>
                     <Typography variant="caption" color="text.secondary">Current roster for this class</Typography>
                   </Box>
-                  <Button size="small" onClick={loadRoster} disabled={rosterLoading} sx={{ minWidth: 0 }}>Refresh</Button>
+                  <Button startIcon={<RefreshOutlined />} size="small" variant="outlined" onClick={loadRoster} disabled={rosterLoading} sx={{ minWidth: 0 }}>Refresh</Button>
                 </Stack>
                 {rosterError && <Alert severity="error" sx={{ m: 1.5 }} action={<Button color="inherit" size="small" onClick={loadRoster}>Retry</Button>}>{rosterError}</Alert>}
                 <Box sx={{ maxHeight: 390, overflowY: 'auto' }}>
@@ -238,7 +240,7 @@ export default function EnrollmentRoster({ open = false, selectedClass = null, o
                                 </Stack>
                               )}
                             />
-                            <Chip label={student.status || 'Enrolled'} size="small" color="success" variant="outlined" sx={{ textTransform: 'capitalize', fontWeight: 700 }} />
+                            <Chip label={displayLabel(student.status || 'Enrolled')} size="small" color={/^(active|enrolled|completed)$/i.test(student.status || 'Enrolled') ? 'success' : 'default'} />
                           </ListItem>
                           {index < roster.length - 1 && <Divider component="li" />}
                         </Box>
@@ -325,8 +327,8 @@ export default function EnrollmentRoster({ open = false, selectedClass = null, o
         )}
       </DialogContent>
 
-      <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} disabled={submitting} color="inherit">Close</Button>
+      <DialogActions>
+        <Button variant="text" onClick={onClose} disabled={submitting} color="inherit">Close</Button>
         <Button
           onClick={handleEnroll}
           startIcon={submitting ? <CircularProgress size={18} color="inherit" /> : <AddCircleOutline />}

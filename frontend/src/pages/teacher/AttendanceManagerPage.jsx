@@ -1,4 +1,5 @@
 // OWNER: Lopez, Mary Vincent — WBS 9.3 Attendance Manager
+import SaveOutlined from '@mui/icons-material/SaveOutlined';
 import { useCallback, useState } from 'react';
 import { Alert, Button, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { getClassAttendance, markAttendance } from '../../api/attendance';
@@ -11,13 +12,15 @@ export default function AttendanceManagerPage() {
   const [classId, setClassId] = useState('');
   const [date, setDate] = useState(localDate);
   const section = classes.data?.find((c) => c.id === Number(classId));
-  return <Stack spacing={3}>
-    <Typography variant="h4">Attendance Manager</Typography>
-    <Typography color="text.secondary">Choose a date to review or update attendance. Late counts as half a day; No Class is excluded from attendance rates.</Typography>
+  return <Stack spacing={2}>
+    <div>
+      <Typography variant="pageTitle">Attendance Manager</Typography>
+      <Typography variant="pageDescription" color="text.secondary">Record and review attendance by class and date. Late counts as half a day. No Class days are excluded from attendance rates.</Typography>
+    </div>
     <FeatureDataState {...classes} onRetry={classes.refresh} empty={classes.data?.length === 0} emptyMessage="You have no classes yet.">
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         <TextField select label="Class" value={classId} sx={{ flex: 1, minWidth: 0 }} onChange={(e) => setClassId(e.target.value)}>{(classes.data || []).map((c) => <MenuItem key={c.id} value={c.id}>{c.name} ({c.sectionCode})</MenuItem>)}</TextField>
-        <TextField type="date" label="Attendance date" value={date} sx={{ width: { xs: '100%', sm: 240 }, flexShrink: 0 }} slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: localDate() } }} onChange={(e) => setDate(e.target.value)} />
+        <TextField type="date" label="Attendance Date" value={date} sx={{ width: { xs: '100%', sm: 240 }, flexShrink: 0 }} slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: localDate() } }} onChange={(e) => setDate(e.target.value)} />
       </Stack>
       {!date || date > localDate() ? <Alert severity="warning">Choose today or a past date.</Alert> :
         section ? <AttendanceDay key={section.id + ':' + date} section={section} date={date} /> : <Alert severity="info">Select a class to view attendance.</Alert>}
@@ -61,15 +64,15 @@ function AttendanceEditor({ section, date, initialRows }) {
     {error && <Alert severity="error">{error}</Alert>}
     {notice && <Alert severity="success">{notice}</Alert>}
     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-      <Button variant="outlined" disabled={completed || saving} onClick={() => markAll('Present')}>Mark all present</Button>
-      <Button variant="outlined" disabled={completed || saving} onClick={() => markAll('No Class')}>Mark day as No Class</Button>
+      <Button variant="outlined" disabled={completed || saving} onClick={() => markAll('Present')}>Mark All Present</Button>
+      <Button variant="outlined" disabled={completed || saving} onClick={() => markAll('No Class')}>Mark Day as No Class</Button>
     </Stack>
-    <TableContainer component={Paper}><Table aria-label="Class attendance"><TableHead><TableRow><TableCell>Student</TableCell><TableCell>Status</TableCell><TableCell>Remarks</TableCell></TableRow></TableHead>
+    <TableContainer component={Paper}><Table aria-label="Class attendance" sx={{ minWidth: 560 }}><TableHead><TableRow><TableCell>Student Name</TableCell><TableCell>Status</TableCell><TableCell>Remarks</TableCell></TableRow></TableHead>
       <TableBody>{rows.map((r) => <TableRow key={r.studentId}><TableCell>{r.studentName}</TableCell><TableCell>
         <TextField select size="small" label={`Status for ${r.studentName}`} value={r.status} disabled={completed || saving} sx={{ minWidth: 175 }} onChange={(e) => update(r.studentId, 'status', e.target.value)}>{statuses.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}</TextField>
       </TableCell><TableCell><TextField size="small" label={`Remarks for ${r.studentName}`} value={r.remarks} disabled={completed || saving} slotProps={{ htmlInput: { maxLength: 200 } }} onChange={(e) => update(r.studentId, 'remarks', e.target.value)} /></TableCell></TableRow>)}</TableBody>
     </Table></TableContainer>
     {unmarked > 0 && <Typography color="text.secondary">{unmarked} student(s) still need a status.</Typography>}
-    <Button variant="contained" disabled={completed || saving || !!unmarked} onClick={save}>{saving ? 'Saving…' : 'Save attendance'}</Button>
+    <Button startIcon={<SaveOutlined />} variant="contained" disabled={completed || saving || !!unmarked} onClick={save}>{saving ? 'Saving…' : 'Save Attendance'}</Button>
   </Stack>;
 }

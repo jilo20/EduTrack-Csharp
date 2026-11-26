@@ -1,3 +1,5 @@
+import { ThemeProvider } from '@mui/material/styles';
+import { authTheme } from '../../theme';
 import { useState } from 'react';
 import {
   Alert,
@@ -144,267 +146,271 @@ export default function RegisterPage() {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-        px: 2,
-        py: { xs: 3, sm: 5 },
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
-      }}
-    >
+    <ThemeProvider theme={authTheme}>
       <Box
-        aria-hidden="true"
         sx={{
-          position: 'absolute',
-          width: 400,
-          height: 400,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%)',
-          top: -100,
-          right: -100,
-          pointerEvents: 'none',
-        }}
-      />
-      <Box
-        aria-hidden="true"
-        sx={{
-          position: 'absolute',
-          width: 300,
-          height: 300,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(22,163,74,0.12) 0%, transparent 70%)',
-          bottom: -50,
-          left: -50,
-          pointerEvents: 'none',
-        }}
-      />
-
-      <Paper
-        elevation={24}
-        sx={{
+          typography: 'body1',
+          color: 'text.primary',
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           position: 'relative',
-          zIndex: 1,
-          width: '100%',
-          maxWidth: 500,
-          p: { xs: 3, sm: 5 },
-          borderRadius: 4,
-          backgroundColor: 'rgba(255,255,255,0.97)',
-          backdropFilter: 'blur(20px)',
-          boxShadow: '0 24px 64px rgba(2,6,23,0.35)',
+          overflow: 'hidden',
+          px: 2,
+          py: { xs: 3, sm: 5 },
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
         }}
       >
-        <Box sx={{ textAlign: 'center', mb: 3 }}>
-          <Box sx={{ display: 'inline-flex', p: 1.5, mb: 1.5, borderRadius: 3, bgcolor: 'rgba(37,99,235,0.08)' }}>
-            <SchoolIcon sx={{ fontSize: 36, color: '#2563EB' }} />
+        <Box
+          aria-hidden="true"
+          sx={{
+            position: 'absolute',
+            width: 400,
+            height: 400,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%)',
+            top: -100,
+            right: -100,
+            pointerEvents: 'none',
+          }}
+        />
+        <Box
+          aria-hidden="true"
+          sx={{
+            position: 'absolute',
+            width: 300,
+            height: 300,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(22,163,74,0.12) 0%, transparent 70%)',
+            bottom: -50,
+            left: -50,
+            pointerEvents: 'none',
+          }}
+        />
+
+        <Paper
+          elevation={24}
+          sx={{
+            position: 'relative',
+            zIndex: 1,
+            width: '100%',
+            maxWidth: 500,
+            p: { xs: 3, sm: 5 },
+            borderRadius: 4,
+            backgroundColor: 'rgba(255,255,255,0.97)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 24px 64px rgba(2,6,23,0.35)',
+          }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <Box sx={{ display: 'inline-flex', p: 1.5, mb: 1.5, borderRadius: 3, bgcolor: 'rgba(37,99,235,0.08)' }}>
+              <SchoolIcon sx={{ fontSize: 36, color: '#2563EB' }} />
+            </Box>
+            <Typography
+              variant="h4"
+              component="h1"
+              fontWeight={800}
+              sx={{
+                backgroundImage: 'linear-gradient(135deg, #2563EB, #1d4ed8)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                letterSpacing: '-0.5px',
+              }}
+            >
+              Join EduTrack
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Create your account to get started
+            </Typography>
           </Box>
-          <Typography
-            variant="h4"
-            component="h1"
-            fontWeight={800}
-            sx={{
-              backgroundImage: 'linear-gradient(135deg, #2563EB, #1d4ed8)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              letterSpacing: '-0.5px',
-            }}
-          >
-            Join EduTrack
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Create your account to get started
-          </Typography>
-        </Box>
 
-        <Stepper activeStep={step} alternativeLabel sx={{ mb: 3 }}>
-          {STEPS.map((label) => (
-            <Step key={label}><StepLabel>{label}</StepLabel></Step>
-          ))}
-        </Stepper>
+          <Stepper activeStep={step} alternativeLabel sx={{ mb: 3 }}>
+            {STEPS.map((label) => (
+              <Step key={label}><StepLabel>{label}</StepLabel></Step>
+            ))}
+          </Stepper>
 
-        {message && <Alert severity={message.type} sx={{ mb: 2.5, borderRadius: 2 }}>{message.text}</Alert>}
+          {message && <Alert severity={message.type} sx={{ mb: 2.5, borderRadius: 2 }}>{message.text}</Alert>}
 
-        {step === 0 ? (
-          <Box component="form" onSubmit={handleVerify} noValidate>
-            <Stack spacing={2.5}>
-              <Typography variant="subtitle2" fontWeight={700} color="text.secondary">
-                STEP 1: INVITE VERIFICATION
-              </Typography>
-              <TextField
-                label="Invite ID"
-                autoComplete="off"
-                autoFocus
-                value={inviteId}
-                onChange={(event) => {
-                  setInviteId(event.target.value);
-                  setErrors({});
-                  setMessage(null);
-                }}
-                error={Boolean(errors.inviteId)}
-                helperText={errors.inviteId}
-                disabled={isVerifying}
-                slotProps={{ input: {
-                  startAdornment: <InputAdornment position="start"><BadgeOutlined color="action" /></InputAdornment>,
-                } }} />
-              <Button
-                type="submit"
-                size="large"
-                fullWidth
-                disabled={isVerifying}
-                startIcon={isVerifying ? <CircularProgress size={18} color="inherit" /> : null}
-                sx={{
-                  py: 1.4,
-                  bgcolor: '#2563EB',
-                  color: '#FFFFFF',
-                  fontWeight: 700,
-                  borderRadius: 2,
-                  boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
-                  '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 6px 20px rgba(37,99,235,0.5)' },
-                }}
-              >
-                {isVerifying ? 'Verifying…' : 'Verify ID'}
-              </Button>
-            </Stack>
-          </Box>
-        ) : (
-          <Box component="form" onSubmit={handleRegister} noValidate>
-            <Stack spacing={2.25}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+          {step === 0 ? (
+            <Box component="form" onSubmit={handleVerify} noValidate>
+              <Stack spacing={2.5}>
                 <Typography variant="subtitle2" fontWeight={700} color="text.secondary">
-                  STEP 2: ACCOUNT DETAILS
+                  STEP 1: INVITE VERIFICATION
                 </Typography>
-                {assignedRole && <Typography variant="caption" color="success.main" fontWeight={700}>{assignedRole}</Typography>}
-              </Box>
+                <TextField
+                  label="Invite ID"
+                  autoComplete="off"
+                  autoFocus
+                  value={inviteId}
+                  onChange={(event) => {
+                    setInviteId(event.target.value);
+                    setErrors({});
+                    setMessage(null);
+                  }}
+                  error={Boolean(errors.inviteId)}
+                  helperText={errors.inviteId}
+                  disabled={isVerifying}
+                  slotProps={{ input: {
+                    startAdornment: <InputAdornment position="start"><BadgeOutlined color="action" /></InputAdornment>,
+                  } }} />
+                <Button
+                  type="submit"
+                  size="large"
+                  fullWidth
+                  disabled={isVerifying}
+                  startIcon={isVerifying ? <CircularProgress size={18} color="inherit" /> : null}
+                  sx={{
+                    py: 1.4,
+                    bgcolor: '#2563EB',
+                    color: '#FFFFFF',
+                    fontWeight: 700,
+                    borderRadius: 2,
+                    boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
+                    '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 6px 20px rgba(37,99,235,0.5)' },
+                  }}
+                >
+                  {isVerifying ? 'Verifying…' : 'Verify ID'}
+                </Button>
+              </Stack>
+            </Box>
+          ) : (
+            <Box component="form" onSubmit={handleRegister} noValidate>
+              <Stack spacing={2.25}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                  <Typography variant="subtitle2" fontWeight={700} color="text.secondary">
+                    STEP 2: ACCOUNT DETAILS
+                  </Typography>
+                  {assignedRole && <Typography variant="caption" color="success.main" fontWeight={700}>{assignedRole}</Typography>}
+                </Box>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 1, borderRadius: 2, bgcolor: 'success.50', color: 'success.dark' }}>
-                <CheckCircle fontSize="small" />
-                <Typography variant="body2">Invite verified</Typography>
-              </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 1, borderRadius: 2, bgcolor: 'success.50', color: 'success.dark' }}>
+                  <CheckCircle fontSize="small" />
+                  <Typography variant="body2">Invite verified</Typography>
+                </Box>
 
-              {isComplete ? (
-                <Stack spacing={2}>
-                  <Button component={RouterLink} to="/" size="large" fullWidth sx={{ py: 1.4, borderRadius: 2, fontWeight: 700 }}>
-                    Go to Sign In
-                  </Button>
-                </Stack>
-              ) : (
-                <>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                {isComplete ? (
+                  <Stack spacing={2}>
+                    <Button component={RouterLink} to="/" size="large" fullWidth sx={{ py: 1.4, borderRadius: 2, fontWeight: 700 }}>
+                      Go to Sign In
+                    </Button>
+                  </Stack>
+                ) : (
+                  <>
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                      <TextField
+                        label="First Name"
+                        name="firstName"
+                        autoComplete="given-name"
+                        autoFocus
+                        value={form.firstName}
+                        onChange={handleFormChange}
+                        error={Boolean(errors.firstName)}
+                        helperText={errors.firstName}
+                        disabled={isRegistering}
+                      />
+                      <TextField
+                        label="Last Name"
+                        name="lastName"
+                        autoComplete="family-name"
+                        value={form.lastName}
+                        onChange={handleFormChange}
+                        error={Boolean(errors.lastName)}
+                        helperText={errors.lastName}
+                        disabled={isRegistering}
+                      />
+                    </Stack>
                     <TextField
-                      label="First Name"
-                      name="firstName"
-                      autoComplete="given-name"
-                      autoFocus
-                      value={form.firstName}
+                      label="Email Address"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      value={form.email}
                       onChange={handleFormChange}
-                      error={Boolean(errors.firstName)}
-                      helperText={errors.firstName}
+                      error={Boolean(errors.email)}
+                      helperText={errors.email}
                       disabled={isRegistering}
                     />
                     <TextField
-                      label="Last Name"
-                      name="lastName"
-                      autoComplete="family-name"
-                      value={form.lastName}
+                      label="Create Password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      value={form.password}
                       onChange={handleFormChange}
-                      error={Boolean(errors.lastName)}
-                      helperText={errors.lastName}
+                      error={Boolean(errors.password)}
+                      helperText={errors.password || 'At least 8 characters.'}
+                      disabled={isRegistering}
+                      slotProps={{ input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label={showPassword ? 'Hide password' : 'Show password'}
+                              onClick={() => setShowPassword((visible) => !visible)}
+                              edge="end"
+                              disabled={isRegistering}
+                            >
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      } }} />
+                    <TextField
+                      label="Confirm Password"
+                      name="confirmPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      value={form.confirmPassword}
+                      onChange={handleFormChange}
+                      error={Boolean(errors.confirmPassword)}
+                      helperText={errors.confirmPassword}
                       disabled={isRegistering}
                     />
-                  </Stack>
-                  <TextField
-                    label="Email Address"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    value={form.email}
-                    onChange={handleFormChange}
-                    error={Boolean(errors.email)}
-                    helperText={errors.email}
-                    disabled={isRegistering}
-                  />
-                  <TextField
-                    label="Create Password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    value={form.password}
-                    onChange={handleFormChange}
-                    error={Boolean(errors.password)}
-                    helperText={errors.password || 'At least 8 characters.'}
-                    disabled={isRegistering}
-                    slotProps={{ input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label={showPassword ? 'Hide password' : 'Show password'}
-                            onClick={() => setShowPassword((visible) => !visible)}
-                            edge="end"
-                            disabled={isRegistering}
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    } }} />
-                  <TextField
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    value={form.confirmPassword}
-                    onChange={handleFormChange}
-                    error={Boolean(errors.confirmPassword)}
-                    helperText={errors.confirmPassword}
-                    disabled={isRegistering}
-                  />
-                  <Stack direction="row" spacing={1.5} sx={{ pt: 0.5 }}>
-                    <Button
-                      type="button"
-                      variant="outlined"
-                      onClick={handleBack}
-                      disabled={isRegistering}
-                      sx={{ minWidth: 96, borderRadius: 2, fontWeight: 700 }}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      type="submit"
-                      size="large"
-                      fullWidth
-                      disabled={isRegistering}
-                      startIcon={isRegistering ? <CircularProgress size={18} color="inherit" /> : null}
-                      sx={{
-                        py: 1.35,
-                        bgcolor: '#2563EB',
-                        color: '#FFFFFF',
-                        fontWeight: 700,
-                        borderRadius: 2,
-                        boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
-                        '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 6px 20px rgba(37,99,235,0.5)' },
-                      }}
-                    >
-                      {isRegistering ? 'Creating account…' : 'Complete Registration'}
-                    </Button>
-                  </Stack>
-                </>
-              )}
-            </Stack>
-          </Box>
-        )}
+                    <Stack direction="row" spacing={1.5} sx={{ pt: 0.5 }}>
+                      <Button
+                        type="button"
+                        variant="outlined"
+                        onClick={handleBack}
+                        disabled={isRegistering}
+                        sx={{ minWidth: 96, borderRadius: 2, fontWeight: 700 }}
+                      >
+                        Back
+                      </Button>
+                      <Button
+                        type="submit"
+                        size="large"
+                        fullWidth
+                        disabled={isRegistering}
+                        startIcon={isRegistering ? <CircularProgress size={18} color="inherit" /> : null}
+                        sx={{
+                          py: 1.35,
+                          bgcolor: '#2563EB',
+                          color: '#FFFFFF',
+                          fontWeight: 700,
+                          borderRadius: 2,
+                          boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
+                          '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 6px 20px rgba(37,99,235,0.5)' },
+                        }}
+                      >
+                        {isRegistering ? 'Creating account…' : 'Complete Registration'}
+                      </Button>
+                    </Stack>
+                  </>
+                )}
+              </Stack>
+            </Box>
+          )}
 
-        <Typography variant="body2" align="center" sx={{ mt: 3 }}>
-          Already have an account?{' '}
-          <Link component={RouterLink} to="/" underline="none" sx={{ color: '#2563EB', fontWeight: 700, '&:hover': { color: '#1d4ed8', textDecoration: 'underline' } }}>
-            Sign In
-          </Link>
-        </Typography>
-      </Paper>
-    </Box>
+          <Typography variant="body2" align="center" sx={{ mt: 3 }}>
+            Already have an account?{' '}
+            <Link component={RouterLink} to="/" underline="none" sx={{ color: '#2563EB', fontWeight: 700, '&:hover': { color: '#1d4ed8', textDecoration: 'underline' } }}>
+              Sign In
+            </Link>
+          </Typography>
+        </Paper>
+      </Box>
+    </ThemeProvider>
   );
 }

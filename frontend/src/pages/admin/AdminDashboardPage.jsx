@@ -1,3 +1,4 @@
+import { metricValueSx } from '../../theme';
 import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
@@ -51,16 +52,16 @@ function StatCard({ label, value, icon, color }) {
         '&:hover': { transform: 'translateY(-3px)', boxShadow: 3 },
       }}
     >
-      <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+      <CardContent>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
           <Box sx={{ p: 1.4, borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main`, display: 'flex' }}>
             {icon}
           </Box>
           <Box sx={{ minWidth: 0 }}>
-            <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 0.6 }}>
+            <Typography variant="subtitle2" color="text.secondary">
               {label}
             </Typography>
-            <Typography variant="h4" fontWeight={800} sx={{ lineHeight: 1.2 }}>
+            <Typography sx={metricValueSx}>
               {value ?? '—'}
             </Typography>
           </Box>
@@ -72,10 +73,10 @@ function StatCard({ label, value, icon, color }) {
 
 function ChartPanel({ title, subtitle, children, sx }) {
   return (
-    <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, border: 1, borderColor: 'divider', borderRadius: 3, minHeight: 360, ...sx }}>
-      <Typography variant="h6" fontWeight={800}>{title}</Typography>
+    <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', ...sx }}>
+      <Typography variant="h6">{title}</Typography>
       {subtitle && <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>{subtitle}</Typography>}
-      <Box sx={{ width: '100%', height: 280, mt: 2 }}>{children}</Box>
+      <Box sx={{ width: '100%', height: 232, mt: 1.5 }}>{children}</Box>
     </Paper>
   );
 }
@@ -119,18 +120,18 @@ export default function AdminDashboardPage() {
 
   return (
     <Box>
-      <Box sx={{ mb: 3.5 }}>
-        <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.7px' }}>
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="pageTitle">
           System Overview
         </Typography>
-        <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+        <Typography variant="pageDescription" color="text.secondary">
           Institutional enrollment and performance at a glance.
         </Typography>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 3 }} action={<Button color="inherit" size="small" onClick={loadAnalytics} disabled={loading}>Retry</Button>}>{error}</Alert>}
 
-      <Grid container spacing={2.5}>
+      <Grid container spacing={2}>
         {STAT_CARDS.map((stat) => (
           <Grid key={stat.key} size={{ xs: 12, sm: 6, xl: 3 }}>
             <StatCard label={stat.label} icon={stat.icon} color={stat.color} value={totals[stat.key]} />
@@ -144,7 +145,7 @@ export default function AdminDashboardPage() {
             ) : enrollment.length === 0 ? (
               <Typography color="text.secondary" sx={{ mt: 3 }}>No enrollment data is available yet.</Typography>
             ) : (
-              <Box sx={{ width: '100%', height: 280, mt: 2, overflowX: 'auto', overflowY: 'hidden' }}>
+              <Box sx={{ width: '100%', height: '100%', overflowX: 'auto', overflowY: 'hidden' }}>
                 <Box sx={{ width: enrollment.length > 7 ? `${Math.max(680, enrollment.length * 88)}px` : '100%', height: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={enrollment} margin={{ top: 8, right: 12, left: -16, bottom: 4 }}>
@@ -184,9 +185,9 @@ export default function AdminDashboardPage() {
         </Grid>
 
         <Grid size={{ xs: 12 }}>
-          <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, border: 1, borderColor: 'divider', borderRadius: 3 }}>
-            <Typography variant="h6" fontWeight={800}>Attendance Overview</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4, mb: 2.5 }}>Attendance breakdown from the analytics service.</Typography>
+          <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider' }}>
+            <Typography variant="h6">Attendance Overview</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4, mb: 2 }}>Attendance breakdown from the analytics service.</Typography>
             {loading ? <CircularProgress size={24} aria-label="Loading attendance overview" /> : error ? (
               <Typography color="text.secondary">Attendance data is unavailable until analytics load successfully.</Typography>
             ) : attendance.length ? (
@@ -194,7 +195,7 @@ export default function AdminDashboardPage() {
                 {attendance.map((item, index) => (
                   <Box key={item.name} sx={{ flex: 1, p: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
                     <Typography variant="caption" color="text.secondary" fontWeight={700}>{item.name}</Typography>
-                    <Typography variant="h5" fontWeight={800} color={[theme.palette.primary.main, theme.palette.warning.main, theme.palette.error.main][index % 3]}>
+                    <Typography sx={metricValueSx} color={[theme.palette.primary.main, theme.palette.warning.main, theme.palette.error.main][index % 3]}>
                       {item.value}
                     </Typography>
                   </Box>
